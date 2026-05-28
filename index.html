@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STUDIO ECONOMY</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:   #00ff88;
+      --red:     #ff3355;
+      --yellow:  #ffd700;
+      --cyan:    #00d4ff;
+      --orange:  #ff8c00;
+      --bg:      #05080d;
+      --panel:   #090d14;
+      --border:  #1a2535;
+      --dim:     #2a3a50;
+      --text:    #c8d8e8;
+      --bright:  #e8f4ff;
+      --mono:    'Share Tech Mono', monospace;
+      --display: 'Orbitron', sans-serif;
+    }
+
+    html, body { width:100%; height:100%; background:var(--bg); color:var(--text); font-family:var(--mono); overflow:hidden; user-select:none; }
+
+    body::after {
+      content:''; position:fixed; inset:0;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);
+      pointer-events:none; z-index:9999;
+    }
+
+    /* ── Layout ───────────────────────── */
+    #app { display:grid; grid-template-rows:64px 1fr 62px 44px; height:100vh; }
+
+    /* ── Header ───────────────────────── */
+    #header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 24px;
+      background:linear-gradient(90deg,#040810 0%,#080f1a 50%,#040810 100%);
+      border-bottom:1px solid var(--border); position:relative;
+    }
+    #header::after {
+      content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+      background:linear-gradient(90deg,transparent,var(--cyan),transparent); opacity:0.4;
+    }
+    .logo { font-family:var(--display); font-weight:900; font-size:22px; letter-spacing:4px; color:var(--bright); text-shadow:0 0 20px rgba(0,212,255,0.5); }
+    .logo span { color:var(--cyan); }
+    .market-status { display:flex; align-items:center; gap:8px; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--green); }
+    .status-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 1.4s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    #clock { font-family:var(--display); font-size:18px; font-weight:700; color:var(--bright); letter-spacing:3px; min-width:160px; text-align:right; }
+    #date  { font-size:10px; letter-spacing:2px; color:var(--dim); text-align:right; margin-top:2px; }
+
+    /* ── Main Grid ────────────────────── */
+    #grid { display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(2,1fr); gap:1px; background:var(--border); padding:1px; }
+
+    .card {
+      background:var(--panel); padding:18px 20px 14px;
+      display:flex; flex-direction:column; gap:6px;
+      position:relative; overflow:hidden; transition:background 0.3s;
+    }
+    .card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--card-accent,var(--dim)); transition:background 0.4s; }
+    .card-header { display:flex; justify-content:space-between; align-items:flex-start; }
+    .symbol { font-family:var(--display); font-size:13px; font-weight:700; letter-spacing:3px; color:var(--cyan); }
+    .card-name { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-top:2px; }
+    .badge { font-size:9px; letter-spacing:1px; padding:2px 7px; border-radius:2px; text-transform:uppercase; font-weight:bold; }
+    .badge.up   { background:rgba(0,255,136,0.12); color:var(--green); border:1px solid rgba(0,255,136,0.25); }
+    .badge.down { background:rgba(255,51,85,0.12);  color:var(--red);   border:1px solid rgba(255,51,85,0.25); }
+    .value-row  { display:flex; align-items:baseline; gap:12px; }
+    .value      { font-family:var(--display); font-size:42px; font-weight:700; line-height:1; transition:color 0.5s; }
+    .change-block { display:flex; flex-direction:column; gap:2px; }
+    .arrow      { font-size:22px; line-height:1; transition:color 0.5s; }
+    .change-pct { font-size:14px; font-weight:bold; letter-spacing:1px; transition:color 0.5s; }
+    .change-abs { font-size:10px; letter-spacing:1px; opacity:0.6; }
+    .up-color   { color:var(--green); }
+    .down-color { color:var(--red); }
+    .up-shadow   { text-shadow:0 0 16px rgba(0,255,136,0.5); }
+    .down-shadow { text-shadow:0 0 16px rgba(255,51,85,0.5); }
+    .sparkline-wrap { flex:1; min-height:0; position:relative; }
+    .sparkline-wrap svg { width:100%; height:100%; display:block; }
+    .stats-row { display:flex; gap:20px; border-top:1px solid var(--border); padding-top:8px; margin-top:4px; }
+    .stat .label { color:var(--dim); font-size:10px; letter-spacing:1px; }
+    .stat .val   { color:var(--text); font-size:10px; letter-spacing:1px; margin-left:4px; }
+
+    /* ── Team Bar ─────────────────────── */
+    #team-bar {
+      display:flex; align-items:center;
+      background:#060a10; border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+      overflow:hidden;
+    }
+    .team-label {
+      font-size:9px; letter-spacing:3px; color:var(--bg); background:var(--yellow);
+      padding:0 10px; height:100%; display:flex; align-items:center;
+      font-family:var(--display); font-weight:700; flex-shrink:0;
+    }
+    #team-members {
+      display:flex; align-items:center; overflow-x:auto; flex:1; height:100%;
+      scrollbar-width:none;
+    }
+    #team-members::-webkit-scrollbar { display:none; }
+    .no-members { font-size:11px; color:var(--dim); padding:0 20px; letter-spacing:2px; }
+
+    .member-chip {
+      display:flex; align-items:center; gap:10px;
+      padding:0 18px; height:100%; flex-shrink:0;
+      border-right:1px solid var(--border); min-width:240px;
+    }
+    .member-avatar {
+      width:32px; height:32px; border-radius:2px; background:var(--dim);
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--display); font-size:11px; font-weight:700; color:var(--bright);
+      flex-shrink:0; border:1px solid var(--border);
+    }
+    .member-details { flex:1; min-width:0; }
+    .member-name { font-size:10px; letter-spacing:2px; color:var(--bright); font-weight:bold; }
+    .member-task { font-size:9px; color:var(--dim); letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px; margin-top:1px; }
+    .member-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; }
+    .member-energy-wrap { display:flex; align-items:center; gap:5px; }
+    .member-energy-bar { width:40px; height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
+    .energy-fill { height:100%; border-radius:2px; transition:width 0.6s ease, background 0.4s; }
+    .member-energy-val { font-size:9px; letter-spacing:1px; min-width:24px; text-align:right; }
+    .progress-wrap { display:flex; align-items:center; gap:5px; }
+    .progress-mini { width:40px; height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
+    .progress-fill { height:100%; background:var(--cyan); border-radius:2px; transition:width 0.6s ease; }
+    .member-progress { font-size:9px; color:var(--text); letter-spacing:1px; }
+    .feel-tag { font-size:9px; letter-spacing:1px; font-weight:bold; }
+
+    /* ── Ticker ───────────────────────── */
+    #ticker-wrap {
+      background:#04070e; border-top:1px solid var(--border);
+      display:flex; align-items:center; overflow:hidden;
+    }
+    #ticker-wrap::before {
+      content:'FEED'; font-size:9px; letter-spacing:3px; color:var(--bg);
+      background:var(--cyan); padding:0 10px; height:100%;
+      display:flex; align-items:center; flex-shrink:0;
+      font-family:var(--display); font-weight:700;
+    }
+    #ticker-viewport { flex:1; overflow:hidden; height:100%; position:relative; }
+    #ticker-track {
+      display:inline-flex; align-items:center; white-space:nowrap;
+      font-size:12px; letter-spacing:1px; height:100%; will-change:transform;
+    }
+    .tick-item { display:inline-flex; align-items:center; gap:6px; padding:0 28px; border-right:1px solid var(--border); }
+    .tick-sym  { color:var(--cyan); font-size:11px; letter-spacing:2px; }
+    .tick-arrow { font-size:14px; }
+    .tick-msg  { color:var(--text); opacity:0.85; }
+    .tick-sep  { color:var(--dim); padding:0 8px; }
+    .tick-bulletin { color:var(--yellow); }
+
+    /* ── Animations ───────────────────── */
+    @keyframes pulse-green { 0%{box-shadow:inset 0 0 0 1px rgba(0,255,136,0)} 30%{box-shadow:inset 0 0 0 1px rgba(0,255,136,0.4)} 100%{box-shadow:inset 0 0 0 1px rgba(0,255,136,0)} }
+    @keyframes pulse-red   { 0%{box-shadow:inset 0 0 0 1px rgba(255,51,85,0)}  30%{box-shadow:inset 0 0 0 1px rgba(255,51,85,0.4)}  100%{box-shadow:inset 0 0 0 1px rgba(255,51,85,0)} }
+    .pulse-green { animation:pulse-green 0.8s ease-out; }
+    .pulse-red   { animation:pulse-red   0.8s ease-out; }
+    @keyframes numflash { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .numflash { animation:numflash 0.15s ease 3; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header id="header">
+    <div>
+      <div class="logo">STUDIO <span>ECONOMY</span></div>
+    </div>
+    <div class="market-status">
+      <div class="status-dot"></div>
+      <span id="market-label">MARKET OPEN</span>
+    </div>
+    <div>
+      <div id="clock">--:--:--</div>
+      <div id="date">--- -- ----</div>
+    </div>
+  </header>
+
+  <main id="grid"></main>
+
+  <div id="team-bar">
+    <div class="team-label">TEAM</div>
+    <div id="team-members"><span class="no-members">Connecting to market data…</span></div>
+  </div>
+
+  <div id="ticker-wrap">
+    <div id="ticker-viewport">
+      <div id="ticker-track"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="config.js"></script>
+<script>
+// ── Firebase init ─────────────────────────────────────
+firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.database();
+
+// ── Feel config ───────────────────────────────────────
+const FEEL_CONFIG = {
+  flowing:  { label:'FLOWING',  symbol:'⚡', color:'#00ff88' },
+  cruising: { label:'CRUISING', symbol:'►',  color:'#00d4ff' },
+  pushing:  { label:'PUSHING',  symbol:'▲',  color:'#ffd700' },
+  blocked:  { label:'BLOCKED',  symbol:'✖',  color:'#ff3355' },
+  dragging: { label:'DRAGGING', symbol:'▼',  color:'#ff8c00' },
+};
+const FEEL_SCORES = {
+  flowing:  { morale:95, focus:95, productivity:95, momentum:90 },
+  cruising: { morale:80, focus:85, productivity:82, momentum:78 },
+  pushing:  { morale:65, focus:70, productivity:72, momentum:68 },
+  blocked:  { morale:30, focus:35, productivity:30, momentum:25 },
+  dragging: { morale:40, focus:40, productivity:38, momentum:35 },
+};
+
+// ── Metric state ──────────────────────────────────────
+const METRICS = [
+  { symbol:'NRG', name:'Team Energy',  value:78.4, change:+2.3, unit:'pts', history:[61,65,63,70,68,72,74,71,76,75,78,77,79,78,78.4] },
+  { symbol:'PRD', name:'Productivity', value:84.1, change:+5.7, unit:'pts', history:[70,72,74,73,76,78,79,80,82,81,83,82,84,84,84.1] },
+  { symbol:'PRG', name:'Progress',     value:62.8, change:-1.2, unit:'%',   history:[68,67,65,66,64,63,65,64,63,64,62,63,62,63,62.8] },
+  { symbol:'MRL', name:'Morale',       value:91.2, change:+3.8, unit:'pts', history:[80,82,83,84,85,86,86,87,88,89,90,90,91,91,91.2] },
+  { symbol:'MOM', name:'Momentum',     value:73.5, change:-0.9, unit:'pts', history:[76,75,74,75,74,73,74,73,74,73,73,74,73,73,73.5] },
+  { symbol:'FCS', name:'Focus',        value:88.7, change:+1.4, unit:'pts', history:[82,84,83,85,86,85,87,86,87,88,88,89,88,89,88.7] },
+];
+const SYM_IDX = { NRG:0, PRD:1, PRG:2, MRL:3, MOM:4, FCS:5 };
+
+const SIM_FEED = [
+  { sym:'NRG', dir:'up',   msg:'Team energy spiking after morning standup — daily high' },
+  { sym:'PRD', dir:'up',   msg:'5 tasks shipped in the last hour — strong execution window' },
+  { sym:'MRL', dir:'up',   msg:'Coffee machine fixed — morale at weekly high' },
+  { sym:'PRG', dir:'down', msg:'Sprint blocker identified — investigation underway' },
+  { sym:'FCS', dir:'up',   msg:'Deep work session active — interruptions minimal' },
+  { sym:'MOM', dir:'down', msg:'Afternoon dip detected — suggest energy break' },
+  { sym:'NRG', dir:'up',   msg:'Post-lunch energy holding steady — above average' },
+  { sym:'PRD', dir:'up',   msg:'PR review queue cleared — unblocking velocity' },
+  { sym:'MRL', dir:'up',   msg:'Team shoutout issued — positive sentiment rising' },
+  { sym:'FCS', dir:'down', msg:'Context switching detected — recommend task batching' },
+  { sym:'PRG', dir:'up',   msg:'Blocker resolved — progress rate recovering' },
+  { sym:'MOM', dir:'up',   msg:'Pair programming session boosting momentum' },
+];
+
+// ── Helpers ───────────────────────────────────────────
+const avg    = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+const clamp  = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
+
+function energyColor(e) {
+  if (e >= 8) return '#00ff88';
+  if (e >= 6) return '#ffd700';
+  if (e >= 4) return '#ff8c00';
+  return '#ff3355';
+}
+
+// ── Clock ─────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const p = n => String(n).padStart(2,'0');
+  document.getElementById('clock').textContent = `${p(now.getHours())}:${p(now.getMinutes())}:${p(now.getSeconds())}`;
+  const days   = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  document.getElementById('date').textContent = `${days[now.getDay()]}  ${months[now.getMonth()]} ${now.getDate()}  ${now.getFullYear()}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── Sparkline ─────────────────────────────────────────
+function buildSparkline(history, isUp) {
+  const W=400, H=80, min=Math.min(...history), max=Math.max(...history), range=max-min||1;
+  const pts = history.map((v,i) => `${(i/(history.length-1))*W},${H-((v-min)/range)*(H-8)-4}`);
+  const pathD = 'M '+pts.join(' L ');
+  const color = isUp ? 'var(--green)' : 'var(--red)';
+  const uid = Math.random().toString(36).slice(2);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="g${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+    </linearGradient></defs>
+    <path d="${pathD} L ${W},${H} L 0,${H} Z" fill="url(#g${uid})"/>
+    <path d="${pathD}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3" fill="${color}" opacity="0.9"/>
+  </svg>`;
+}
+
+// ── Card render (initial) ─────────────────────────────
+function renderCard(m, idx) {
+  const isUp = m.change >= 0;
+  const cc = isUp ? 'up-color up-shadow' : 'down-color down-shadow';
+  const sign = isUp ? '+' : '';
+  const high = Math.max(...m.history).toFixed(1), low = Math.min(...m.history).toFixed(1);
+  return `<div class="card" id="card-${idx}" style="--card-accent:${isUp?'var(--green)':'var(--red)'}">
+    <div class="card-header">
+      <div><div class="symbol">${m.symbol}</div><div class="card-name">${m.name}</div></div>
+      <div class="badge ${isUp?'up':'down'}" id="badge-${idx}">${isUp?'▲ GAINING':'▼ LOSING'}</div>
+    </div>
+    <div class="value-row">
+      <div class="value ${cc}" id="val-${idx}">${m.value.toFixed(1)}</div>
+      <div class="change-block">
+        <div class="arrow ${cc}" id="arrow-${idx}">${isUp?'▲':'▼'}</div>
+        <div class="change-pct ${cc}" id="pct-${idx}">${sign}${m.change.toFixed(1)}%</div>
+        <div class="change-abs" id="abs-${idx}"></div>
+      </div>
+    </div>
+    <div class="sparkline-wrap" id="spark-${idx}">${buildSparkline(m.history,isUp)}</div>
+    <div class="stats-row">
+      <div class="stat"><span class="label">HIGH</span><span class="val">${high}</span></div>
+      <div class="stat"><span class="label">LOW</span><span class="val">${low}</span></div>
+      <div class="stat"><span class="label">AVG</span><span class="val">${avg(m.history).toFixed(1)}</span></div>
+      <div class="stat"><span class="label">SRC</span><span class="val" id="src-${idx}">SIM</span></div>
+    </div>
+  </div>`;
+}
+document.getElementById('grid').innerHTML = METRICS.map((m,i)=>renderCard(m,i)).join('');
+
+// ── Card DOM update ───────────────────────────────────
+function updateCardDOM(idx) {
+  const m = METRICS[idx];
+  const prev  = m.history[m.history.length-2] || m.value;
+  const tick  = m.value >= prev;
+  const netUp = m.change >= 0;
+  const cc    = netUp ? 'up-color up-shadow' : 'down-color down-shadow';
+  const sign  = m.change >= 0 ? '+' : '';
+
+  const card = document.getElementById(`card-${idx}`);
+  if (!card) return;
+  card.style.setProperty('--card-accent', netUp ? 'var(--green)' : 'var(--red)');
+
+  const valEl = document.getElementById(`val-${idx}`);
+  if (valEl) { valEl.textContent=m.value.toFixed(1); valEl.className=`value ${cc} numflash`; setTimeout(()=>{if(valEl)valEl.className=`value ${cc}`;},600); }
+
+  const get = id => document.getElementById(id);
+  const setTxt = (id,t) => { const el=get(id); if(el) el.textContent=t; };
+  const setCls = (id,c) => { const el=get(id); if(el) el.className=c; };
+
+  setCls(`arrow-${idx}`, `arrow ${cc}`);   setTxt(`arrow-${idx}`, netUp?'▲':'▼');
+  setCls(`pct-${idx}`,   `change-pct ${cc}`); setTxt(`pct-${idx}`, `${sign}${m.change.toFixed(1)}%`);
+  setTxt(`abs-${idx}`, `${tick?'+':''}${(m.value-prev).toFixed(2)} ${m.unit}`);
+  const badge = get(`badge-${idx}`);
+  if (badge) { badge.className=`badge ${netUp?'up':'down'}`; badge.textContent=netUp?'▲ GAINING':'▼ LOSING'; }
+  const spark = get(`spark-${idx}`);
+  if (spark) spark.innerHTML = buildSparkline(m.history, netUp);
+  card.classList.remove('pulse-green','pulse-red');
+  void card.offsetWidth;
+  card.classList.add(tick?'pulse-green':'pulse-red');
+}
+
+// ── Metrics from team data ────────────────────────────
+function computeFromTeam(members) {
+  if (!members.length) return null;
+  const g = fn => avg(members.map(fn));
+  return {
+    NRG: g(m => m.energy * 10),
+    PRD: g(m => (m.energy/10) * (FEEL_SCORES[m.feel]?.productivity || 60)),
+    PRG: g(m => m.progress),
+    MRL: g(m => FEEL_SCORES[m.feel]?.morale || 60),
+    FCS: g(m => FEEL_SCORES[m.feel]?.focus || 60),
+    MOM: g(m => (m.progress/100)*(FEEL_SCORES[m.feel]?.momentum||60) + (m.energy/10)*25),
+  };
+}
+
+function applyTeamMetrics(tv, memberCount) {
+  for (const [sym, val] of Object.entries(tv)) {
+    const idx = SYM_IDX[sym];
+    if (idx === undefined) continue;
+    const m = METRICS[idx];
+    m.value  = +val.toFixed(2);
+    m.change = +(m.value - m.history[0]).toFixed(2);
+    m.history.push(m.value);
+    if (m.history.length > 30) m.history.shift();
+    const src = document.getElementById(`src-${idx}`);
+    if (src) src.textContent = memberCount + (memberCount===1?' mbr':' mbr');
+    updateCardDOM(idx);
+  }
+}
+
+// ── Team strip ────────────────────────────────────────
+function renderTeamStrip(members) {
+  const el = document.getElementById('team-members');
+  if (!el) return;
+  if (!members.length) {
+    el.innerHTML = '<span class="no-members">No submissions yet — waiting for team input</span>';
+    return;
+  }
+  el.innerHTML = members.map(m => {
+    const feel = FEEL_CONFIG[m.feel] || FEEL_CONFIG.pushing;
+    const initials = m.name.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const ec = energyColor(m.energy);
+    return `<div class="member-chip">
+      <div class="member-avatar">${initials}</div>
+      <div class="member-details">
+        <div class="member-name">${m.name.toUpperCase()}</div>
+        <div class="member-task">${m.task||'—'}</div>
+      </div>
+      <div class="member-right">
+        <div class="member-energy-wrap">
+          <div class="member-energy-bar"><div class="energy-fill" style="width:${m.energy*10}%;background:${ec}"></div></div>
+          <span class="member-energy-val" style="color:${ec}">${m.energy}/10</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-mini"><div class="progress-fill" style="width:${m.progress}%"></div></div>
+          <span class="member-progress">${m.progress}%</span>
+        </div>
+        <span class="feel-tag" style="color:${feel.color}">${feel.symbol} ${feel.label}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Auto ticker messages from team ────────────────────
+function buildLiveMessages(members, bulletins) {
+  const auto = [];
+  members.forEach(m => {
+    if (m.energy >= 8) auto.push({ sym:'NRG', dir:'up',   msg:`${m.name} running at ${m.energy}/10 — peak performance window` });
+    else if (m.energy <= 3) auto.push({ sym:'NRG', dir:'down', msg:`${m.name} at ${m.energy}/10 — energy break recommended` });
+    if (m.feel==='blocked')  auto.push({ sym:'PRG', dir:'down', msg:`${m.name} blocked on "${m.task}" — may need support` });
+    if (m.feel==='flowing')  auto.push({ sym:'FCS', dir:'up',   msg:`${m.name} in flow state on "${m.task}" — do not disturb` });
+    if (m.feel==='dragging') auto.push({ sym:'MOM', dir:'down', msg:`${m.name} dragging on "${m.task}" — check in?` });
+    if (m.progress >= 90) auto.push({ sym:'PRD', dir:'up', msg:`${m.name} closing in — "${m.task}" at ${m.progress}%` });
+    else if (m.progress >= 75) auto.push({ sym:'PRG', dir:'up', msg:`${m.name} at ${m.progress}% on "${m.task}" — strong push` });
+  });
+  const buls = bulletins.slice(-15).map(b => ({
+    sym: b.author.split(' ')[0].slice(0,4).toUpperCase(), dir:'up',
+    msg: `${b.author}: ${b.text}`, isBulletin:true,
+  }));
+  return [...buls, ...auto];
+}
+
+// ── Ticker ────────────────────────────────────────────
+let tickerPos = 0;
+let tickerHalfWidth = 0;
+
+function renderTickItem(t) {
+  const aColor = t.dir==='up' ? 'var(--green)' : 'var(--red)';
+  const msgCls = t.isBulletin ? 'tick-msg tick-bulletin' : 'tick-msg';
+  return `<span class="tick-item"><span class="tick-sym">${t.sym}</span><span class="tick-arrow" style="color:${aColor}">${t.dir==='up'?'▲':'▼'}</span><span class="${msgCls}">${t.msg}</span></span>`;
+}
+
+function rebuildTicker(liveMessages) {
+  const base = liveMessages.length ? [...liveMessages, ...SIM_FEED] : SIM_FEED;
+  const doubled = [...base, ...base];
+  const track = document.getElementById('ticker-track');
+  if (!track) return;
+  track.innerHTML = doubled.map(renderTickItem).join('<span class="tick-sep">◆</span>');
+  tickerPos = 0;
+  tickerHalfWidth = 0;
+}
+
+function animateTicker() {
+  const track = document.getElementById('ticker-track');
+  if (track) {
+    if (!tickerHalfWidth) tickerHalfWidth = track.scrollWidth / 2;
+    tickerPos -= 1.2;
+    if (Math.abs(tickerPos) >= tickerHalfWidth) tickerPos = 0;
+    track.style.transform = `translateX(${tickerPos}px)`;
+  }
+  requestAnimationFrame(animateTicker);
+}
+
+// ── Simulation (runs when no team data) ───────────────
+let simulationActive = false;
+function runSimulation() {
+  if (!simulationActive) return;
+  METRICS.forEach((m, idx) => {
+    m.value  = clamp(+(m.value + (Math.random()-0.5)*1.8).toFixed(2), 0, 100);
+    m.change = +(m.value - m.history[0]).toFixed(2);
+    m.history.push(m.value);
+    if (m.history.length > 30) m.history.shift();
+    updateCardDOM(idx);
+  });
+}
+
+// ── Firebase listener — single source of truth ────────
+db.ref('studio_economy').on('value', snapshot => {
+  const data = snapshot.val() || {};
+  const members  = Object.values(data.members  || {});
+  const bulletins = Object.values(data.bulletins || {})
+    .sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
+
+  if (members.length > 0) {
+    simulationActive = false;
+    renderTeamStrip(members);
+    const tv = computeFromTeam(members);
+    if (tv) applyTeamMetrics(tv, members.length);
+    rebuildTicker(buildLiveMessages(members, bulletins));
+  } else {
+    simulationActive = true;
+    renderTeamStrip([]);
+    rebuildTicker([]);
+  }
+});
+
+// ── Init ──────────────────────────────────────────────
+rebuildTicker([]);
+animateTicker();
+simulationActive = true;
+setInterval(runSimulation, 2400);
+</script>
+</body>
+</html>
