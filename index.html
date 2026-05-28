@@ -243,8 +243,7 @@ const SIM_FEED = [
 ];
 
 // ── Helpers ───────────────────────────────────────────
-const avg    = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
-const clamp  = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
+const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
 
 function energyColor(e) {
   if (e >= 8) return '#00ff88';
@@ -457,19 +456,6 @@ function animateTicker() {
   requestAnimationFrame(animateTicker);
 }
 
-// ── Simulation (runs when no team data) ───────────────
-let simulationActive = false;
-function runSimulation() {
-  if (!simulationActive) return;
-  METRICS.forEach((m, idx) => {
-    m.value  = clamp(+(m.value + (Math.random()-0.5)*1.8).toFixed(2), 0, 100);
-    m.change = +(m.value - m.history[0]).toFixed(2);
-    m.history.push(m.value);
-    if (m.history.length > 30) m.history.shift();
-    updateCardDOM(idx);
-  });
-}
-
 // ── Firebase listener — single source of truth ────────
 db.ref('studio_economy').on('value', snapshot => {
   const data = snapshot.val() || {};
@@ -478,13 +464,11 @@ db.ref('studio_economy').on('value', snapshot => {
     .sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
 
   if (members.length > 0) {
-    simulationActive = false;
     renderTeamStrip(members);
     const tv = computeFromTeam(members);
     if (tv) applyTeamMetrics(tv, members.length);
     rebuildTicker(buildLiveMessages(members, bulletins));
   } else {
-    simulationActive = true;
     renderTeamStrip([]);
     rebuildTicker([]);
   }
@@ -493,8 +477,6 @@ db.ref('studio_economy').on('value', snapshot => {
 // ── Init ──────────────────────────────────────────────
 rebuildTicker([]);
 animateTicker();
-simulationActive = true;
-setInterval(runSimulation, 2400);
 </script>
 </body>
 </html>
