@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STUDIO ECONOMY — ADMIN</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    :root {
+      --green:#00ff88; --red:#ff3355; --yellow:#ffd700; --cyan:#00d4ff; --orange:#ff8c00;
+      --bg:#05080d; --panel:#090d14; --border:#1a2535; --dim:#2a3a50;
+      --text:#c8d8e8; --bright:#e8f4ff;
+      --mono:'Share Tech Mono',monospace; --display:'Orbitron',sans-serif;
+    }
+    html { background:var(--bg); }
+    body { background:var(--bg); color:var(--text); font-family:var(--mono); min-height:100vh; padding-bottom:60px; }
+
+    header { display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:56px; background:linear-gradient(90deg,#040810,#080f1a,#040810); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+    header::after { content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--yellow),transparent); opacity:0.5; }
+    .logo { font-family:var(--display); font-weight:900; font-size:15px; letter-spacing:3px; color:var(--bright); }
+    .logo span { color:var(--yellow); }
+    .logo-sub { font-size:9px; letter-spacing:3px; color:var(--dim); margin-top:2px; }
+    .nav-links { display:flex; gap:10px; }
+    .nav-link { font-size:10px; letter-spacing:2px; color:var(--dim); text-decoration:none; border:1px solid var(--border); padding:5px 12px; border-radius:2px; transition:color 0.2s,border-color 0.2s; }
+    .nav-link:hover { color:var(--cyan); border-color:var(--cyan); }
+
+    .wrap { max-width:900px; margin:0 auto; padding:28px 24px 0; display:flex; flex-direction:column; gap:24px; }
+
+    /* Section cards */
+    .section { background:var(--panel); border:1px solid var(--border); border-radius:2px; overflow:hidden; }
+    .section-head { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
+    .section-title { font-family:var(--display); font-size:11px; font-weight:700; letter-spacing:3px; color:var(--bright); }
+    .section-body { padding:20px; }
+
+    /* DEFCON status */
+    .defcon-status { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+    .dc-level { font-family:var(--display); font-size:42px; font-weight:900; letter-spacing:2px; }
+    .dc-label { font-size:12px; letter-spacing:2px; margin-top:4px; }
+    .dc-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; flex:1; min-width:300px; }
+    .dc-metric { background:rgba(255,255,255,0.03); border:1px solid var(--border); padding:10px 14px; border-radius:2px; }
+    .dc-metric-sym { font-family:var(--display); font-size:10px; letter-spacing:2px; color:var(--cyan); }
+    .dc-metric-val { font-family:var(--display); font-size:22px; font-weight:700; margin-top:4px; }
+    .dc-metric-lbl { font-size:9px; color:var(--dim); letter-spacing:1px; margin-top:2px; }
+
+    /* Settings */
+    .settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    @media(max-width:600px) { .settings-grid { grid-template-columns:1fr; } }
+    .setting-row { display:flex; flex-direction:column; gap:8px; }
+    .setting-label { font-size:9px; letter-spacing:3px; color:var(--dim); text-transform:uppercase; }
+    .setting-control { display:flex; align-items:center; gap:12px; }
+    .setting-val { font-family:var(--display); font-size:22px; font-weight:700; color:var(--bright); min-width:44px; }
+    .setting-unit { font-size:10px; color:var(--dim); letter-spacing:1px; }
+    input[type=range] { flex:1; height:6px; appearance:none; -webkit-appearance:none; background:var(--border); border-radius:3px; cursor:pointer; outline:none; }
+    input[type=range]::-webkit-slider-thumb { appearance:none; width:18px; height:18px; border-radius:2px; background:var(--bright); cursor:pointer; }
+    input[type=range]::-moz-range-thumb { width:18px; height:18px; border-radius:2px; border:none; background:var(--bright); cursor:pointer; }
+
+    .defcon-thresholds { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:20px; padding-top:20px; border-top:1px solid var(--border); }
+    .dt-row { display:flex; flex-direction:column; gap:6px; }
+    .dt-label { font-size:9px; letter-spacing:2px; }
+    .dt-val { font-family:var(--display); font-size:20px; font-weight:700; }
+
+    .save-btn { margin-top:20px; width:100%; padding:14px; background:rgba(255,215,0,0.08); border:1px solid var(--yellow); color:var(--yellow); font-family:var(--display); font-size:12px; font-weight:700; letter-spacing:3px; cursor:pointer; border-radius:2px; transition:background 0.2s; }
+    .save-btn:hover { background:rgba(255,215,0,0.15); }
+    .save-confirm { font-size:10px; color:var(--green); letter-spacing:2px; text-align:center; margin-top:8px; height:18px; }
+
+    /* Table */
+    .data-table { width:100%; border-collapse:collapse; }
+    .data-table th { font-size:9px; letter-spacing:2px; color:var(--dim); text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); font-weight:normal; text-transform:uppercase; }
+    .data-table td { font-size:11px; padding:10px 12px; border-bottom:1px solid rgba(26,37,53,0.6); vertical-align:middle; }
+    .data-table tr:last-child td { border-bottom:none; }
+    .data-table tr:hover td { background:rgba(255,255,255,0.02); }
+    .feel-pill { display:inline-block; font-size:9px; letter-spacing:1px; font-weight:bold; padding:2px 7px; border-radius:2px; }
+    .time-ago { color:var(--dim); font-size:10px; letter-spacing:1px; }
+    .name-cell { color:var(--bright); font-weight:bold; letter-spacing:1px; }
+    .remove-btn { background:none; border:1px solid var(--border); color:var(--dim); font-family:var(--mono); font-size:10px; letter-spacing:1px; padding:4px 10px; cursor:pointer; border-radius:2px; transition:color 0.2s,border-color 0.2s; }
+    .remove-btn:hover { color:var(--red); border-color:var(--red); }
+    .empty-row { font-size:11px; color:var(--dim); letter-spacing:2px; padding:16px 0; text-align:center; }
+
+    .danger-btn { background:rgba(255,51,85,0.06); border:1px solid rgba(255,51,85,0.3); color:var(--red); font-family:var(--mono); font-size:10px; letter-spacing:2px; padding:8px 16px; cursor:pointer; border-radius:2px; transition:background 0.2s; }
+    .danger-btn:hover { background:rgba(255,51,85,0.14); }
+
+    /* News table */
+    .news-type-badge { font-size:9px; font-weight:bold; letter-spacing:1px; padding:2px 7px; border-radius:2px; white-space:nowrap; }
+
+    /* QR */
+    .qr-section { display:flex; flex-direction:column; align-items:center; gap:16px; padding:8px 0; }
+    .qr-box { padding:18px; background:#fff; border-radius:4px; display:inline-block; }
+    .qr-url-display { font-size:12px; letter-spacing:2px; color:var(--cyan); }
+    .copy-btn { background:rgba(0,212,255,0.08); border:1px solid var(--cyan); color:var(--cyan); font-family:var(--mono); font-size:10px; letter-spacing:2px; padding:8px 20px; cursor:pointer; border-radius:2px; transition:background 0.2s; }
+    .copy-btn:hover { background:rgba(0,212,255,0.16); }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="logo">STUDIO <span>ECONOMY</span> — ADMIN</div>
+    <div class="logo-sub">CONTROL PANEL</div>
+  </div>
+  <div class="nav-links">
+    <a href="input.html" class="nav-link">← INPUT</a>
+    <a href="index.html" class="nav-link">← DISPLAY</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- DEFCON STATUS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">CURRENT DEFCON STATUS</div>
+    </div>
+    <div class="section-body">
+      <div class="defcon-status">
+        <div>
+          <div class="dc-level" id="admin-dc-level">—</div>
+          <div class="dc-label" id="admin-dc-label" style="color:var(--dim)">Waiting for data</div>
+        </div>
+        <div class="dc-metrics" id="admin-dc-metrics"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">DISPLAY SETTINGS</div>
+    </div>
+    <div class="section-body">
+      <div class="settings-grid">
+        <div class="setting-row">
+          <div class="setting-label">Dashboard Duration</div>
+          <div class="setting-control">
+            <div class="setting-val" id="val-dash">20</div>
+            <div class="setting-unit">sec</div>
+            <input type="range" id="range-dash" min="5" max="60" value="20" step="5" />
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">Detail Page Duration</div>
+          <div class="setting-control">
+            <div class="setting-val" id="val-detail">10</div>
+            <div class="setting-unit">sec</div>
+            <input type="range" id="range-detail" min="5" max="30" value="10" step="5" />
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">QR Code Duration</div>
+          <div class="setting-control">
+            <div class="setting-val" id="val-qr">10</div>
+            <div class="setting-unit">sec</div>
+            <input type="range" id="range-qr" min="5" max="30" value="5" step="5" />
+          </div>
+        </div>
+      </div>
+
+      <div class="defcon-thresholds">
+        <div class="dt-row">
+          <div class="dt-label" style="color:#ffd700">DEFCON 4 below</div>
+          <div class="dt-val" id="val-dc4" style="color:#ffd700">65</div>
+          <input type="range" id="range-dc4" min="10" max="90" value="65" step="5" />
+        </div>
+        <div class="dt-row">
+          <div class="dt-label" style="color:#ffd700">DEFCON 3 below</div>
+          <div class="dt-val" id="val-dc3" style="color:#ffd700">50</div>
+          <input type="range" id="range-dc3" min="10" max="80" value="50" step="5" />
+        </div>
+        <div class="dt-row">
+          <div class="dt-label" style="color:#ff8c00">DEFCON 2 below</div>
+          <div class="dt-val" id="val-dc2" style="color:#ff8c00">35</div>
+          <input type="range" id="range-dc2" min="5" max="60" value="35" step="5" />
+        </div>
+        <div class="dt-row">
+          <div class="dt-label" style="color:#ff3355">DEFCON 1 below</div>
+          <div class="dt-val" id="val-dc1" style="color:#ff3355">20</div>
+          <input type="range" id="range-dc1" min="5" max="40" value="20" step="5" />
+        </div>
+      </div>
+
+      <button class="save-btn" id="save-settings">SAVE SETTINGS</button>
+      <div class="save-confirm" id="save-confirm"></div>
+    </div>
+  </div>
+
+  <!-- TEAM MEMBERS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">TEAM MEMBERS</div>
+      <button class="danger-btn" id="clear-members">CLEAR ALL</button>
+    </div>
+    <div class="section-body" style="padding:0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th><th>Energy</th><th>Task</th><th>Progress</th><th>Feel</th><th>Last Update</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="members-tbody">
+          <tr><td colspan="7" class="empty-row">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- NEWS FEED -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">NEWS FEED</div>
+      <button class="danger-btn" id="clear-news">CLEAR ALL</button>
+    </div>
+    <div class="section-body" style="padding:0">
+      <table class="data-table">
+        <thead>
+          <tr><th>Type</th><th>Author</th><th>Message</th><th>Time</th><th></th></tr>
+        </thead>
+        <tbody id="news-tbody">
+          <tr><td colspan="5" class="empty-row">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QR CODE -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">INPUT QR CODE</div>
+    </div>
+    <div class="section-body">
+      <div class="qr-section">
+        <div class="qr-box"><div id="admin-qr"></div></div>
+        <div class="qr-url-display" id="qr-url-text"></div>
+        <button class="copy-btn" id="copy-url">COPY LINK</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="config.js"></script>
+<script>
+firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.database();
+
+const FEEL_CONFIG = {
+  flowing:  { label:'FLOWING',  symbol:'⚡', color:'#00ff88' },
+  cruising: { label:'CRUISING', symbol:'►',  color:'#00d4ff' },
+  pushing:  { label:'PUSHING',  symbol:'▲',  color:'#ffd700' },
+  blocked:  { label:'BLOCKED',  symbol:'✖',  color:'#ff3355' },
+  dragging: { label:'DRAGGING', symbol:'▼',  color:'#ff8c00' },
+};
+const NEWS_TYPE_CONFIG = {
+  win:      { label:'WIN',      symbol:'★', color:'#ffd700' },
+  done:     { label:'DONE',     symbol:'✓', color:'#00ff88' },
+  blocked:  { label:'BLOCKED',  symbol:'✖', color:'#ff3355' },
+  boost:    { label:'BOOST',    symbol:'⚡', color:'#00d4ff' },
+  shoutout: { label:'SHOUTOUT', symbol:'▲', color:'#ff8c00' },
+  update:   { label:'UPDATE',   symbol:'◆', color:'#c8d8e8' },
+};
+const DEFCON_COLORS = { 5:'#00ff88', 4:'#ffd700', 3:'#ffd700', 2:'#ff8c00', 1:'#ff3355' };
+const DEFCON_LABELS = { 5:'ALL SYSTEMS NOMINAL', 4:'MONITOR SITUATION', 3:'CONDITION ELEVATED', 2:'HIGH ALERT', 1:'MAXIMUM ALERT' };
+const FEEL_SCORES = {
+  flowing:{morale:95,focus:95,productivity:95,momentum:90}, cruising:{morale:80,focus:85,productivity:82,momentum:78},
+  pushing:{morale:65,focus:70,productivity:72,momentum:68}, blocked:{morale:30,focus:35,productivity:30,momentum:25},
+  dragging:{morale:40,focus:40,productivity:38,momentum:35},
+};
+const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+
+function energyColor(e) { return e>=8?'#00ff88':e>=6?'#ffd700':e>=4?'#ff8c00':'#ff3355'; }
+
+function timeAgo(ts) {
+  if (!ts) return '—';
+  const d = Math.floor((Date.now()-ts)/1000);
+  if (d<60) return `${d}s ago`;
+  if (d<3600) return `${Math.floor(d/60)}m ago`;
+  if (d<86400) return `${Math.floor(d/3600)}h ago`;
+  return `${Math.floor(d/86400)}d ago`;
+}
+
+// ── DEFCON calculation ────────────────────────────────
+function calcDefcon(members, thresholds) {
+  if (!members.length) return null;
+  const metricVals = {
+    NRG: avg(members.map(m=>m.energy*10)),
+    PRD: avg(members.map(m=>(m.energy/10)*(FEEL_SCORES[m.feel]?.productivity||60))),
+    PRG: avg(members.map(m=>m.progress)),
+    MRL: avg(members.map(m=>FEEL_SCORES[m.feel]?.morale||60)),
+    FCS: avg(members.map(m=>FEEL_SCORES[m.feel]?.focus||60)),
+    MOM: avg(members.map(m=>(m.progress/100)*(FEEL_SCORES[m.feel]?.momentum||60)+(m.energy/10)*25)),
+  };
+  const vals = Object.values(metricVals);
+  const score = avg(vals)*0.7 + Math.min(...vals)*0.3;
+  if (score>=thresholds[5]) return { level:5, metricVals };
+  if (score>=thresholds[4]) return { level:4, metricVals };
+  if (score>=thresholds[3]) return { level:3, metricVals };
+  if (score>=thresholds[2]) return { level:2, metricVals };
+  return { level:1, metricVals };
+}
+
+function renderDefconStatus(members, thresholds) {
+  const result = calcDefcon(members, thresholds);
+  const lvlEl  = document.getElementById('admin-dc-level');
+  const lblEl  = document.getElementById('admin-dc-label');
+  const mtrEl  = document.getElementById('admin-dc-metrics');
+  if (!result) {
+    if (lvlEl) { lvlEl.textContent='—'; lvlEl.style.color='var(--dim)'; }
+    if (lblEl) { lblEl.textContent='No team data'; lblEl.style.color='var(--dim)'; }
+    if (mtrEl)   mtrEl.innerHTML='';
+    return;
+  }
+  const { level, metricVals } = result;
+  const color = DEFCON_COLORS[level];
+  if (lvlEl) { lvlEl.textContent=`DEFCON ${level}`; lvlEl.style.color=color; }
+  if (lblEl) { lblEl.textContent=DEFCON_LABELS[level]; lblEl.style.color=color; }
+  if (mtrEl) {
+    mtrEl.innerHTML = Object.entries(metricVals).map(([sym,val])=>{
+      const isLow = val < thresholds[3];
+      return `<div class="dc-metric">
+        <div class="dc-metric-sym">${sym}</div>
+        <div class="dc-metric-val" style="color:${isLow?'var(--red)':val>=thresholds[5]?'var(--green)':'var(--yellow)'}">${val.toFixed(1)}</div>
+        <div class="dc-metric-lbl">${isLow?'⚠ LOW':'NOMINAL'}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ── Settings sliders ──────────────────────────────────
+const sliders = [
+  { range:'range-dash',   val:'val-dash',   unit:'sec' },
+  { range:'range-detail', val:'val-detail', unit:'sec' },
+  { range:'range-qr',     val:'val-qr',     unit:'sec' },
+  { range:'range-dc4',    val:'val-dc4',    unit:''    },
+  { range:'range-dc3',    val:'val-dc3',    unit:''    },
+  { range:'range-dc2',    val:'val-dc2',    unit:''    },
+  { range:'range-dc1',    val:'val-dc1',    unit:''    },
+];
+sliders.forEach(({range,val})=>{
+  const r=document.getElementById(range), v=document.getElementById(val);
+  if(!r||!v) return;
+  r.addEventListener('input',()=>{ v.textContent=r.value; });
+});
+
+// ── Load settings from Firebase ───────────────────────
+let currentThresholds = { 5:65, 4:50, 3:35, 2:20 };
+db.ref('studio_economy/settings').once('value', snap=>{
+  const s=snap.val()||{};
+  const setSlider = (id,valId,v) => { const r=document.getElementById(id),el=document.getElementById(valId); if(r&&v!==undefined){r.value=v;} if(el&&v!==undefined){el.textContent=v;} };
+  setSlider('range-dash',   'val-dash',   s.dashboardDuration||20);
+  setSlider('range-detail', 'val-detail', s.detailDuration||10);
+  setSlider('range-qr',     'val-qr',     s.qrDuration||10);
+  if (s.defconThresholds) {
+    setSlider('range-dc4','val-dc4',s.defconThresholds[4]||50);
+    setSlider('range-dc3','val-dc3',s.defconThresholds[3]||35);
+    setSlider('range-dc2','val-dc2',s.defconThresholds[2]||20);
+    setSlider('range-dc1','val-dc1',s.defconThresholds[1]||10);
+    currentThresholds = { 5:s.defconThresholds[5]||65, ...s.defconThresholds };
+  }
+});
+
+document.getElementById('save-settings').addEventListener('click', ()=>{
+  const g = id => +document.getElementById(id).value;
+  const settings = {
+    dashboardDuration: g('range-dash'),
+    detailDuration:    g('range-detail'),
+    qrDuration:        g('range-qr'),
+    defconThresholds: { 5:65, 4:g('range-dc4'), 3:g('range-dc3'), 2:g('range-dc2'), 1:g('range-dc1') },
+  };
+  db.ref('studio_economy/settings').set(settings).then(()=>{
+    currentThresholds = settings.defconThresholds;
+    const c=document.getElementById('save-confirm');
+    if(c){ c.textContent='✓ SETTINGS SAVED'; setTimeout(()=>c.textContent='',2500); }
+  });
+});
+
+// ── Members table ─────────────────────────────────────
+function renderMembers(membersMap) {
+  const tbody = document.getElementById('members-tbody'); if(!tbody) return;
+  const entries = Object.entries(membersMap||{});
+  if (!entries.length) { tbody.innerHTML='<tr><td colspan="7" class="empty-row">No team members yet</td></tr>'; return; }
+  tbody.innerHTML = entries.map(([key, m])=>{
+    const feel  = FEEL_CONFIG[m.feel]||FEEL_CONFIG.pushing;
+    const eColor= energyColor(m.energy);
+    return `<tr>
+      <td class="name-cell">${m.name}</td>
+      <td style="color:${eColor}">${m.energy}/10</td>
+      <td style="color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.task||'—'}</td>
+      <td style="color:var(--cyan)">${m.progress}%</td>
+      <td><span class="feel-pill" style="color:${feel.color};background:${feel.color}18;border:1px solid ${feel.color}33">${feel.symbol} ${feel.label}</span></td>
+      <td class="time-ago">${timeAgo(m.timestamp)}</td>
+      <td><button class="remove-btn" data-key="${key}" data-path="members">REMOVE</button></td>
+    </tr>`;
+  }).join('');
+  attachRemoveListeners(tbody, 'members');
+}
+
+// ── News table ────────────────────────────────────────
+function renderNews(newsMap) {
+  const tbody = document.getElementById('news-tbody'); if(!tbody) return;
+  const entries = Object.entries(newsMap||{}).sort((a,b)=>(b[1].timestamp||0)-(a[1].timestamp||0));
+  if (!entries.length) { tbody.innerHTML='<tr><td colspan="5" class="empty-row">No news items yet</td></tr>'; return; }
+  tbody.innerHTML = entries.slice(0,50).map(([key, n])=>{
+    const cfg = NEWS_TYPE_CONFIG[n.type]||NEWS_TYPE_CONFIG.update;
+    return `<tr>
+      <td><span class="news-type-badge" style="color:${cfg.color};background:${cfg.color}18;border:1px solid ${cfg.color}33">${cfg.symbol} ${cfg.label}</span></td>
+      <td style="color:var(--bright)">${n.author||'—'}</td>
+      <td style="color:var(--text);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n.text||'—'}</td>
+      <td class="time-ago">${timeAgo(n.timestamp)}</td>
+      <td><button class="remove-btn" data-key="${key}" data-path="news">REMOVE</button></td>
+    </tr>`;
+  }).join('');
+  attachRemoveListeners(tbody, 'news');
+}
+
+function attachRemoveListeners(tbody, path) {
+  tbody.querySelectorAll('.remove-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if (confirm(`Remove this ${path==='members'?'member':'news item'}?`)) {
+        db.ref(`studio_economy/${path}/${btn.dataset.key}`).remove();
+      }
+    });
+  });
+}
+
+// ── Clear all ─────────────────────────────────────────
+document.getElementById('clear-members').addEventListener('click', ()=>{
+  if (confirm('Clear ALL team members? This will reset the dashboard.')) {
+    db.ref('studio_economy/members').remove();
+  }
+});
+document.getElementById('clear-news').addEventListener('click', ()=>{
+  if (confirm('Clear ALL news items?')) {
+    db.ref('studio_economy/news').remove();
+  }
+});
+
+// ── Live Firebase listener ────────────────────────────
+db.ref('studio_economy').on('value', snapshot=>{
+  const data = snapshot.val()||{};
+  renderMembers(data.members||{});
+  renderNews(data.news||{});
+  renderDefconStatus(Object.values(data.members||{}), currentThresholds);
+});
+
+// ── QR code ───────────────────────────────────────────
+const inputUrl = window.location.origin+'/input.html';
+document.getElementById('qr-url-text').textContent = inputUrl;
+const qrEl = document.getElementById('admin-qr');
+if (qrEl && window.QRCode) {
+  new QRCode(qrEl, { text:inputUrl, width:200, height:200, colorDark:'#050810', colorLight:'#ffffff' });
+}
+
+document.getElementById('copy-url').addEventListener('click', ()=>{
+  navigator.clipboard.writeText(inputUrl).then(()=>{
+    const btn = document.getElementById('copy-url');
+    btn.textContent='COPIED ✓'; btn.style.color='var(--green)'; btn.style.borderColor='var(--green)';
+    setTimeout(()=>{ btn.textContent='COPY LINK'; btn.style.color=''; btn.style.borderColor=''; },2000);
+  });
+});
+</script>
+</body>
+</html>

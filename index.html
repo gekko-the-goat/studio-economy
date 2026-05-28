@@ -17,118 +17,117 @@
     body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px); pointer-events:none; z-index:9999; }
 
     /* ── Rotation progress bar ────────── */
-    #rot-bar { position:fixed; top:0; left:0; right:0; height:2px; z-index:10000; background:var(--border); }
+    #rot-bar  { position:fixed; top:0; left:0; right:0; height:2px; z-index:10000; background:var(--border); }
     #rot-fill { height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--green)); }
+
+    /* ── DEFCON overlays ──────────────── */
+    #defcon-overlay { position:fixed; inset:0; pointer-events:none; z-index:400; transition:background 1s; }
+    #defcon-banner  { position:fixed; top:64px; left:0; right:0; z-index:500; display:none; }
+    .dc-inner { padding:8px 24px; font-family:var(--display); font-size:11px; letter-spacing:3px; text-align:center; text-transform:uppercase; border-bottom:1px solid; }
+    .dc-3 { background:rgba(255,215,0,0.07);  color:var(--yellow);  border-color:rgba(255,215,0,0.3);  animation:dc-pulse 2.5s ease-in-out infinite; }
+    .dc-2 { background:rgba(255,140,0,0.09);  color:var(--orange);  border-color:rgba(255,140,0,0.4);  animation:dc-pulse 1.4s ease-in-out infinite; }
+    .dc-1 { background:rgba(255,51,85,0.12);  color:var(--red);     border-color:rgba(255,51,85,0.5);  animation:dc-flash 0.65s ease-in-out infinite; }
+    @keyframes dc-pulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
+    @keyframes dc-flash { 0%,100%{opacity:1}   50%{opacity:0.15} }
 
     /* ── App layout ───────────────────── */
     #app { display:grid; grid-template-rows:64px 1fr 62px 44px; height:100vh; }
 
     /* ── Header ───────────────────────── */
-    #header { display:flex; align-items:center; justify-content:space-between; padding:0 24px; background:linear-gradient(90deg,#040810,#080f1a,#040810); border-bottom:1px solid var(--border); position:relative; }
+    #header { display:flex; align-items:center; justify-content:space-between; padding:0 20px; background:linear-gradient(90deg,#040810,#080f1a,#040810); border-bottom:1px solid var(--border); position:relative; gap:16px; }
     #header::after { content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--cyan),transparent); opacity:0.4; }
-    .logo { font-family:var(--display); font-weight:900; font-size:22px; letter-spacing:4px; color:var(--bright); text-shadow:0 0 20px rgba(0,212,255,0.5); }
+    .logo { font-family:var(--display); font-weight:900; font-size:20px; letter-spacing:4px; color:var(--bright); text-shadow:0 0 20px rgba(0,212,255,0.5); flex-shrink:0; }
     .logo span { color:var(--cyan); }
-    #screen-dots { display:flex; gap:6px; align-items:center; }
-    .sdot { width:7px; height:7px; border-radius:50%; background:var(--dim); transition:background 0.4s, box-shadow 0.4s; }
+    #header-center { display:flex; align-items:center; gap:16px; flex:1; justify-content:center; }
+    #screen-dots { display:flex; gap:5px; align-items:center; }
+    .sdot { width:7px; height:7px; border-radius:50%; background:var(--dim); transition:background 0.4s,box-shadow 0.4s; }
     .sdot.active { background:var(--cyan); box-shadow:0 0 8px var(--cyan); }
-    .market-status { display:flex; align-items:center; gap:8px; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--green); }
+    #defcon-badge { font-size:10px; letter-spacing:2px; font-weight:bold; font-family:var(--display); white-space:nowrap; }
+    .market-status { display:flex; align-items:center; gap:8px; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--green); flex-shrink:0; }
     .status-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 1.4s ease-in-out infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-    #clock { font-family:var(--display); font-size:18px; font-weight:700; color:var(--bright); letter-spacing:3px; min-width:160px; text-align:right; }
-    #date  { font-size:10px; letter-spacing:2px; color:var(--dim); text-align:right; margin-top:2px; }
+    #header-right { display:flex; align-items:center; gap:16px; flex-shrink:0; }
+    #clock { font-family:var(--display); font-size:16px; font-weight:700; color:var(--bright); letter-spacing:3px; text-align:right; }
+    #date  { font-size:9px; letter-spacing:2px; color:var(--dim); text-align:right; margin-top:2px; }
+    .admin-link { font-size:9px; letter-spacing:2px; color:var(--dim); text-decoration:none; border:1px solid var(--border); padding:5px 10px; border-radius:2px; font-family:var(--mono); transition:color 0.2s,border-color 0.2s; }
+    .admin-link:hover { color:var(--yellow); border-color:var(--yellow); }
 
     /* ── Screen wrapper ───────────────── */
     #screen-wrapper { position:relative; overflow:hidden; }
     #screen-a, #screen-b { position:absolute; inset:0; will-change:transform; }
     #screen-b { transform:translateX(100%); }
 
-    /* ── Dashboard view ───────────────── */
+    /* ── Dashboard ────────────────────── */
     .dashboard-view { display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(2,1fr); gap:1px; background:var(--border); padding:1px; height:100%; }
 
     /* ── Metric cards ─────────────────── */
     .card { background:var(--panel); padding:18px 20px 14px; display:flex; flex-direction:column; gap:6px; position:relative; overflow:hidden; transition:background 0.3s; }
     .card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--card-accent,var(--dim)); transition:background 0.4s; }
     .card-header { display:flex; justify-content:space-between; align-items:flex-start; }
-    .symbol { font-family:var(--display); font-size:13px; font-weight:700; letter-spacing:3px; color:var(--cyan); }
-    .card-name { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-top:2px; }
-    .badge { font-size:9px; letter-spacing:1px; padding:2px 7px; border-radius:2px; text-transform:uppercase; font-weight:bold; }
+    .symbol   { font-family:var(--display); font-size:13px; font-weight:700; letter-spacing:3px; color:var(--cyan); }
+    .card-name{ font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-top:2px; }
+    .badge    { font-size:9px; letter-spacing:1px; padding:2px 7px; border-radius:2px; text-transform:uppercase; font-weight:bold; }
     .badge.up   { background:rgba(0,255,136,0.12); color:var(--green); border:1px solid rgba(0,255,136,0.25); }
     .badge.down { background:rgba(255,51,85,0.12);  color:var(--red);   border:1px solid rgba(255,51,85,0.25); }
     .value-row { display:flex; align-items:baseline; gap:12px; }
     .value { font-family:var(--display); font-size:42px; font-weight:700; line-height:1; transition:color 0.5s; }
     .change-block { display:flex; flex-direction:column; gap:2px; }
-    .arrow { font-size:22px; line-height:1; }
-    .change-pct { font-size:14px; font-weight:bold; letter-spacing:1px; }
-    .change-abs { font-size:10px; letter-spacing:1px; opacity:0.6; }
-    .up-color   { color:var(--green); } .down-color { color:var(--red); }
-    .up-shadow  { text-shadow:0 0 16px rgba(0,255,136,0.5); }
-    .down-shadow{ text-shadow:0 0 16px rgba(255,51,85,0.5); }
-    .sparkline-wrap { flex:1; min-height:0; }
-    .sparkline-wrap svg { width:100%; height:100%; display:block; }
+    .arrow { font-size:22px; line-height:1; } .change-pct { font-size:14px; font-weight:bold; letter-spacing:1px; } .change-abs { font-size:10px; letter-spacing:1px; opacity:0.6; }
+    .up-color { color:var(--green); } .down-color { color:var(--red); }
+    .up-shadow { text-shadow:0 0 16px rgba(0,255,136,0.5); } .down-shadow { text-shadow:0 0 16px rgba(255,51,85,0.5); }
+    .sparkline-wrap { flex:1; min-height:0; } .sparkline-wrap svg { width:100%; height:100%; display:block; }
     .stats-row { display:flex; gap:20px; border-top:1px solid var(--border); padding-top:8px; margin-top:4px; }
-    .stat .label { color:var(--dim); font-size:10px; letter-spacing:1px; }
-    .stat .val   { color:var(--text); font-size:10px; letter-spacing:1px; margin-left:4px; }
+    .stat .label { color:var(--dim); font-size:10px; letter-spacing:1px; } .stat .val { color:var(--text); font-size:10px; letter-spacing:1px; margin-left:4px; }
 
     /* ── Detail screen ────────────────── */
     .detail-screen { display:grid; grid-template-rows:88px 1fr 52px; height:100%; background:var(--bg); }
-
-    .detail-hero {
-      display:grid; grid-template-columns:200px 1fr auto auto;
-      align-items:center; padding:0 28px; gap:28px;
-      background:var(--panel); border-bottom:1px solid var(--border); position:relative;
-    }
+    .detail-hero { display:grid; grid-template-columns:200px 1fr auto auto; align-items:center; padding:0 28px; gap:28px; background:var(--panel); border-bottom:1px solid var(--border); position:relative; }
     .detail-hero::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--metric-color,var(--cyan)); }
-
     .dh-sym  { font-family:var(--display); font-size:22px; font-weight:900; letter-spacing:4px; }
     .dh-name { font-size:10px; letter-spacing:3px; color:var(--dim); margin-top:4px; text-transform:uppercase; }
-
     .dh-value-wrap { display:flex; align-items:baseline; gap:16px; }
-    .dh-big { font-family:var(--display); font-size:72px; font-weight:900; line-height:1; }
+    .dh-big  { font-family:var(--display); font-size:72px; font-weight:900; line-height:1; }
     .dh-change-wrap { display:flex; flex-direction:column; gap:4px; }
-    .dh-arrow { font-size:28px; line-height:1; }
-    .dh-pct   { font-size:18px; font-weight:bold; letter-spacing:1px; }
-
+    .dh-arrow{ font-size:28px; line-height:1; } .dh-pct { font-size:18px; font-weight:bold; letter-spacing:1px; }
     .dh-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px 20px; }
-    .dhs { font-size:10px; letter-spacing:1px; }
-    .dhs .l { color:var(--dim); }
-    .dhs .v { color:var(--bright); margin-left:6px; font-weight:bold; }
-
+    .dhs .l { color:var(--dim); font-size:10px; letter-spacing:1px; } .dhs .v { color:var(--bright); font-size:10px; letter-spacing:1px; margin-left:6px; font-weight:bold; }
     .dh-nav { text-align:right; }
     .dh-screen-num { font-family:var(--display); font-size:14px; color:var(--dim); letter-spacing:2px; }
     .dh-next { font-size:9px; color:var(--dim); letter-spacing:2px; margin-top:4px; }
     .dh-next span { color:var(--cyan); }
-
     .detail-body { display:grid; grid-template-columns:58% 42%; gap:1px; background:var(--border); overflow:hidden; }
-
     .detail-chart-panel { background:var(--panel); padding:16px 20px 12px; display:flex; flex-direction:column; gap:8px; overflow:hidden; }
     .detail-break-panel { background:var(--panel); padding:16px 20px 12px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
     .panel-label { font-size:9px; letter-spacing:3px; color:var(--dim); text-transform:uppercase; flex-shrink:0; }
-    .chart-wrap  { flex:1; min-height:0; }
-    .chart-wrap svg { width:100%; height:100%; display:block; }
-
+    .chart-wrap { flex:1; min-height:0; } .chart-wrap svg { width:100%; height:100%; display:block; }
     .br-items { display:flex; flex-direction:column; gap:8px; flex:1; overflow-y:auto; scrollbar-width:none; }
     .br-items::-webkit-scrollbar { display:none; }
     .br-row { display:grid; grid-template-columns:1fr 1fr 56px 80px; align-items:center; gap:8px; }
     .br-name { font-size:11px; letter-spacing:1px; color:var(--bright); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .br-sub  { font-size:9px; color:var(--dim); letter-spacing:1px; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .br-bar-wrap { height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
-    .br-bar-fill { height:100%; border-radius:3px; transition:width 0.6s ease; }
-    .br-val  { font-size:11px; font-weight:bold; letter-spacing:1px; text-align:right; white-space:nowrap; }
-    .br-tag  { font-size:9px; letter-spacing:1px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .br-bar-fill { height:100%; border-radius:3px; }
+    .br-val { font-size:11px; font-weight:bold; letter-spacing:1px; text-align:right; white-space:nowrap; }
+    .br-tag { font-size:9px; letter-spacing:1px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .no-data { font-size:11px; color:var(--dim); letter-spacing:2px; padding:16px 0; }
-
-    .detail-news {
-      background:#04070e; border-top:1px solid var(--border);
-      display:flex; align-items:center; gap:0; overflow:hidden; padding:0;
-    }
+    .detail-news { background:#04070e; border-top:1px solid var(--border); display:flex; align-items:center; overflow:hidden; }
     .news-label { font-size:9px; letter-spacing:3px; color:var(--bg); background:var(--green); padding:0 12px; height:100%; display:flex; align-items:center; font-family:var(--display); font-weight:700; flex-shrink:0; }
-    .news-scroll { display:flex; align-items:center; overflow:hidden; flex:1; height:100%; position:relative; }
+    .news-scroll { display:flex; align-items:center; overflow:hidden; flex:1; height:100%; }
     .news-track  { display:inline-flex; align-items:center; white-space:nowrap; will-change:transform; }
     .news-item   { display:inline-flex; align-items:center; gap:6px; padding:0 24px; border-right:1px solid var(--border); font-size:12px; }
-    .news-sym    { font-size:11px; letter-spacing:2px; }
-    .news-msg    { color:var(--text); opacity:0.9; }
-    .news-bulletin { color:var(--yellow); }
-    .news-sep    { color:var(--dim); padding:0 8px; }
+    .news-sym { font-size:11px; letter-spacing:2px; } .news-msg { color:var(--text); opacity:0.9; } .news-bulletin { color:var(--yellow); } .news-sep { color:var(--dim); padding:0 8px; }
+
+    /* ── QR screen ────────────────────── */
+    .qr-screen { display:flex; align-items:center; justify-content:center; height:100%; background:var(--bg); position:relative; overflow:hidden; }
+    .qr-screen::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center, rgba(0,212,255,0.04) 0%, transparent 70%); }
+    .qr-content { display:flex; flex-direction:column; align-items:center; gap:22px; position:relative; z-index:1; }
+    .qr-eyebrow { font-family:var(--display); font-size:11px; letter-spacing:6px; color:var(--dim); }
+    .qr-headline { font-family:var(--display); font-size:60px; font-weight:900; letter-spacing:6px; color:var(--bright); text-shadow:0 0 50px rgba(0,212,255,0.25); }
+    .qr-sub  { font-size:13px; letter-spacing:3px; color:var(--dim); }
+    .qr-frame { padding:20px; background:#ffffff; border-radius:4px; box-shadow:0 0 60px rgba(0,212,255,0.12),0 0 120px rgba(0,212,255,0.06); }
+    #qr-canvas { display:block; }
+    .qr-url  { font-size:13px; letter-spacing:2px; color:var(--cyan); margin-top:4px; }
+    .qr-hint { font-size:9px; letter-spacing:3px; color:var(--dim); }
 
     /* ── Team bar ─────────────────────── */
     #team-bar { display:flex; align-items:center; background:#060a10; border-top:1px solid var(--border); border-bottom:1px solid var(--border); overflow:hidden; }
@@ -158,15 +157,11 @@
     #ticker-viewport { flex:1; overflow:hidden; height:100%; }
     #ticker-track { display:inline-flex; align-items:center; white-space:nowrap; font-size:12px; letter-spacing:1px; height:100%; will-change:transform; }
     .tick-item { display:inline-flex; align-items:center; gap:6px; padding:0 28px; border-right:1px solid var(--border); }
-    .tick-sym { color:var(--cyan); font-size:11px; letter-spacing:2px; }
-    .tick-arrow { font-size:14px; }
-    .tick-msg { color:var(--text); opacity:0.85; }
-    .tick-sep { color:var(--dim); padding:0 8px; }
-    .tick-bulletin { color:var(--yellow); }
+    .tick-sym { color:var(--cyan); font-size:11px; letter-spacing:2px; } .tick-arrow { font-size:14px; } .tick-msg { color:var(--text); opacity:0.85; } .tick-sep { color:var(--dim); padding:0 8px; } .tick-bulletin { color:var(--yellow); }
 
-    /* ── Shared animations ────────────── */
+    /* ── Animations ───────────────────── */
     @keyframes pulse-green { 0%{box-shadow:inset 0 0 0 1px rgba(0,255,136,0)} 30%{box-shadow:inset 0 0 0 1px rgba(0,255,136,0.4)} 100%{box-shadow:inset 0 0 0 1px rgba(0,255,136,0)} }
-    @keyframes pulse-red   { 0%{box-shadow:inset 0 0 0 1px rgba(255,51,85,0)}  30%{box-shadow:inset 0 0 0 1px rgba(255,51,85,0.4)} 100%{box-shadow:inset 0 0 0 1px rgba(255,51,85,0)} }
+    @keyframes pulse-red   { 0%{box-shadow:inset 0 0 0 1px rgba(255,51,85,0)}  30%{box-shadow:inset 0 0 0 1px rgba(255,51,85,0.4)}  100%{box-shadow:inset 0 0 0 1px rgba(255,51,85,0)} }
     .pulse-green { animation:pulse-green 0.8s ease-out; }
     .pulse-red   { animation:pulse-red   0.8s ease-out; }
     @keyframes numflash { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -176,20 +171,23 @@
 <body>
 
 <div id="rot-bar"><div id="rot-fill"></div></div>
+<div id="defcon-overlay"></div>
+<div id="defcon-banner"></div>
 
 <div id="app">
   <header id="header">
-    <div>
-      <div class="logo">STUDIO <span>ECONOMY</span></div>
+    <div class="logo">STUDIO <span>ECONOMY</span></div>
+    <div id="header-center">
+      <div id="screen-dots"></div>
+      <div id="defcon-badge"></div>
     </div>
-    <div id="screen-dots"></div>
-    <div class="market-status">
-      <div class="status-dot"></div>
-      <span>MARKET OPEN</span>
-    </div>
-    <div>
-      <div id="clock">--:--:--</div>
-      <div id="date">--- -- ----</div>
+    <div class="market-status"><div class="status-dot"></div><span>MARKET OPEN</span></div>
+    <div id="header-right">
+      <div>
+        <div id="clock">--:--:--</div>
+        <div id="date">--- -- ----</div>
+      </div>
+      <a href="admin.html" class="admin-link">⚙ ADMIN</a>
     </div>
   </header>
 
@@ -204,20 +202,19 @@
   </div>
 
   <div id="ticker-wrap">
-    <div id="ticker-viewport">
-      <div id="ticker-track"></div>
-    </div>
+    <div id="ticker-viewport"><div id="ticker-track"></div></div>
   </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="config.js"></script>
 <script>
 firebase.initializeApp(FIREBASE_CONFIG);
 const db = firebase.database();
 
-// ── Config ────────────────────────────────────────────
+// ── Static config ─────────────────────────────────────
 const FEEL_CONFIG = {
   flowing:  { label:'FLOWING',  symbol:'⚡', color:'#00ff88' },
   cruising: { label:'CRUISING', symbol:'►',  color:'#00d4ff' },
@@ -232,14 +229,6 @@ const FEEL_SCORES = {
   blocked:  { morale:30, focus:35, productivity:30, momentum:25 },
   dragging: { morale:40, focus:40, productivity:38, momentum:35 },
 };
-const METRICS = [
-  { symbol:'NRG', name:'Team Energy',  value:78.4, change:+2.3, unit:'pts', history:[61,65,63,70,68,72,74,71,76,75,78,77,79,78,78.4] },
-  { symbol:'PRD', name:'Productivity', value:84.1, change:+5.7, unit:'pts', history:[70,72,74,73,76,78,79,80,82,81,83,82,84,84,84.1] },
-  { symbol:'PRG', name:'Progress',     value:62.8, change:-1.2, unit:'%',   history:[68,67,65,66,64,63,65,64,63,64,62,63,62,63,62.8] },
-  { symbol:'MRL', name:'Morale',       value:91.2, change:+3.8, unit:'pts', history:[80,82,83,84,85,86,86,87,88,89,90,90,91,91,91.2] },
-  { symbol:'MOM', name:'Momentum',     value:73.5, change:-0.9, unit:'pts', history:[76,75,74,75,74,73,74,73,74,73,73,74,73,73,73.5] },
-  { symbol:'FCS', name:'Focus',        value:88.7, change:+1.4, unit:'pts', history:[82,84,83,85,86,85,87,86,87,88,88,89,88,89,88.7] },
-];
 const NEWS_TYPE_CONFIG = {
   win:      { label:'WIN',      symbol:'★', color:'#ffd700', dir:'up'   },
   done:     { label:'DONE',     symbol:'✓', color:'#00ff88', dir:'up'   },
@@ -258,25 +247,51 @@ const NEWS_MODS = {
 };
 const EMPTY_FEED = [
   { sym:'STU', dir:'up', msg:'Studio Economy is live — open /input to check in' },
-  { sym:'NRG', dir:'up', msg:'Waiting for the team — be the first to submit your status' },
+  { sym:'NRG', dir:'up', msg:'Waiting for team check-in — be the first to submit' },
   { sym:'PRD', dir:'up', msg:'No data yet — energy, progress and focus are standing by' },
 ];
-const SLIDE_DURATION = 10000;
-const ANIM_DURATION  = 700;
-const TOTAL_SCREENS  = 7; // 1 dashboard + 6 metrics
+const DEFAULT_DEFCON_THRESHOLDS = { 5:65, 4:50, 3:35, 2:20 };
+const DEFCON_CFG = {
+  5: { text:'● DEFCON 5 — ALL SYSTEMS NOMINAL',                           hColor:'#00ff88', banner:false },
+  4: { text:'● DEFCON 4 — MONITOR SITUATION',                             hColor:'#ffd700', banner:false },
+  3: { text:'⚠  DEFCON 3 — CONDITION ELEVATED — REVIEW YOUR METRICS',    hColor:'#ffd700', banner:true,  cls:'dc-3' },
+  2: { text:'⚠⚠ DEFCON 2 — HIGH ALERT — IMMEDIATE ATTENTION REQUIRED',   hColor:'#ff8c00', banner:true,  cls:'dc-2' },
+  1: { text:'🚨 DEFCON 1 — MAXIMUM ALERT — ALL HANDS ON DECK 🚨',         hColor:'#ff3355', banner:true,  cls:'dc-1' },
+};
 
-// ── State ─────────────────────────────────────────────
-const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
-let currentMembers = [];
-let currentNews    = [];
+// ── Metric state ──────────────────────────────────────
+const METRICS = [
+  { symbol:'NRG', name:'Team Energy',  value:78.4, change:+2.3, unit:'pts', history:[61,65,63,70,68,72,74,71,76,75,78,77,79,78,78.4] },
+  { symbol:'PRD', name:'Productivity', value:84.1, change:+5.7, unit:'pts', history:[70,72,74,73,76,78,79,80,82,81,83,82,84,84,84.1] },
+  { symbol:'PRG', name:'Progress',     value:62.8, change:-1.2, unit:'%',   history:[68,67,65,66,64,63,65,64,63,64,62,63,62,63,62.8] },
+  { symbol:'MRL', name:'Morale',       value:91.2, change:+3.8, unit:'pts', history:[80,82,83,84,85,86,86,87,88,89,90,90,91,91,91.2] },
+  { symbol:'MOM', name:'Momentum',     value:73.5, change:-0.9, unit:'pts', history:[76,75,74,75,74,73,74,73,74,73,73,74,73,73,73.5] },
+  { symbol:'FCS', name:'Focus',        value:88.7, change:+1.4, unit:'pts', history:[82,84,83,85,86,85,87,86,87,88,88,89,88,89,88.7] },
+];
+
+// ── Settings (overridden by Firebase) ─────────────────
+let dashboardDuration  = 20000;
+let detailDuration     = 10000;
+let qrDuration         = 10000;
+let defconThresholds   = { ...DEFAULT_DEFCON_THRESHOLDS };
+
+// ── Rotation ──────────────────────────────────────────
+const TOTAL_SCREENS = 8; // dashboard + 6 metrics + QR
+const ANIM_DURATION = 700;
 let currentScreenIdx = 0;
 let isTransitioning  = false;
-let newsPos = 0;
-let newsHalfWidth = 0;
+let rotationTimeout  = null;
+let newsPos = 0, newsHalfWidth = 0, newsAnimFrame = null;
+let tickerPos = 0, tickerHalfW  = 0;
 
-function energyColor(e) {
-  return e>=8?'#00ff88':e>=6?'#ffd700':e>=4?'#ff8c00':'#ff3355';
-}
+// ── Live data ─────────────────────────────────────────
+let currentMembers   = [];
+let currentNews      = [];
+
+// ── Helpers ───────────────────────────────────────────
+const avg   = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+const clamp = (v,lo,hi) => Math.max(lo, Math.min(hi, v));
+function energyColor(e) { return e>=8?'#00ff88':e>=6?'#ffd700':e>=4?'#ff8c00':'#ff3355'; }
 
 // ── Clock ─────────────────────────────────────────────
 function updateClock() {
@@ -288,297 +303,110 @@ function updateClock() {
 }
 setInterval(updateClock,1000); updateClock();
 
-// ── Screen dots ───────────────────────────────────────
+// ── Dots ──────────────────────────────────────────────
 function buildDots() {
-  const wrap = document.getElementById('screen-dots');
-  if (!wrap) return;
-  wrap.innerHTML = Array.from({length:TOTAL_SCREENS},(_,i)=>
-    `<div class="sdot${i===currentScreenIdx?' active':''}"></div>`
-  ).join('');
+  const w=document.getElementById('screen-dots'); if(!w) return;
+  w.innerHTML=Array.from({length:TOTAL_SCREENS},(_,i)=>`<div class="sdot${i===currentScreenIdx?' active':''}"></div>`).join('');
 }
 
-// ── Sparkline (cards) ─────────────────────────────────
+// ── DEFCON ────────────────────────────────────────────
+function calculateDefcon() {
+  if (!currentMembers.length) return null;
+  const a = avg(METRICS.map(m=>m.value));
+  const mn= Math.min(...METRICS.map(m=>m.value));
+  const score = a*0.7 + mn*0.3;
+  if (score >= defconThresholds[5]) return 5;
+  if (score >= defconThresholds[4]) return 4;
+  if (score >= defconThresholds[3]) return 3;
+  if (score >= defconThresholds[2]) return 2;
+  return 1;
+}
+
+function renderDefcon(level) {
+  const badge   = document.getElementById('defcon-badge');
+  const banner  = document.getElementById('defcon-banner');
+  const overlay = document.getElementById('defcon-overlay');
+  if (level === null) {
+    if (badge)   badge.innerHTML = '';
+    if (banner)  banner.style.display = 'none';
+    if (overlay) overlay.style.background = 'transparent';
+    return;
+  }
+  const cfg = DEFCON_CFG[level];
+  if (badge)  { badge.textContent = `DEFCON ${level}`; badge.style.color = cfg.hColor; }
+  if (banner) {
+    if (cfg.banner) { banner.style.display='block'; banner.innerHTML=`<div class="dc-inner ${cfg.cls}">${cfg.text}</div>`; }
+    else banner.style.display='none';
+  }
+  if (overlay) {
+    overlay.style.background = level===1 ? 'rgba(255,51,85,0.04)' : level===2 ? 'rgba(255,140,0,0.03)' : 'transparent';
+  }
+}
+
+// ── Sparkline ─────────────────────────────────────────
 function buildSparkline(history, isUp) {
   const W=400,H=80,mn=Math.min(...history),mx=Math.max(...history),rng=mx-mn||1;
   const pts=history.map((v,i)=>`${(i/(history.length-1))*W},${H-((v-mn)/rng)*(H-8)-4}`);
-  const pathD='M '+pts.join(' L ');
+  const pd='M '+pts.join(' L ');
   const color=isUp?'var(--green)':'var(--red)';
   const uid=Math.random().toString(36).slice(2);
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="g${uid}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
-      <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
-    </linearGradient></defs>
-    <path d="${pathD} L ${W},${H} L 0,${H} Z" fill="url(#g${uid})"/>
-    <path d="${pathD}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <defs><linearGradient id="g${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.25"/><stop offset="100%" stop-color="${color}" stop-opacity="0.02"/></linearGradient></defs>
+    <path d="${pd} L ${W},${H} L 0,${H} Z" fill="url(#g${uid})"/>
+    <path d="${pd}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
     <circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3" fill="${color}" opacity="0.9"/>
   </svg>`;
 }
 
 // ── Detail line chart ─────────────────────────────────
 function buildLineChart(history, isUp) {
-  const W=1000,H=220,PL=40,PR=24,PT=16,PB=24;
-  const cW=W-PL-PR, cH=H-PT-PB;
-  const xS=i=>PL+(i/(history.length-1))*cW;
-  const yS=v=>PT+(1-v/100)*cH;
+  const W=1000,H=220,PL=40,PR=24,PT=16,PB=24,cW=W-PL-PR,cH=H-PT-PB;
+  const xS=i=>PL+(i/(history.length-1))*cW, yS=v=>PT+(1-v/100)*cH;
   const pts=history.map((v,i)=>[xS(i),yS(v)]);
-  const pathD='M '+pts.map(p=>p.join(',')).join(' L ');
-  const fillD=pathD+` L ${pts[pts.length-1][0]},${PT+cH} L ${PL},${PT+cH} Z`;
-  const color=isUp?'#00ff88':'#ff3355';
-  const uid=Math.random().toString(36).slice(2);
-  const avgY=yS(avg(history));
-  const grid=[0,25,50,75,100].map(v=>{
-    const y=yS(v);
-    return `<line x1="${PL}" y1="${y}" x2="${PL+cW}" y2="${y}" stroke="#1a2535" stroke-width="1" stroke-dasharray="${v%50===0?'none':'4,4'}"/>
-            <text x="${PL-6}" y="${y+4}" fill="#2a3a50" font-size="10" text-anchor="end" font-family="Share Tech Mono,monospace">${v}</text>`;
-  }).join('');
+  const pd='M '+pts.map(p=>p.join(',')).join(' L ');
+  const fd=pd+` L ${pts[pts.length-1][0]},${PT+cH} L ${PL},${PT+cH} Z`;
+  const color=isUp?'#00ff88':'#ff3355', uid=Math.random().toString(36).slice(2), ay=yS(avg(history));
+  const grid=[0,25,50,75,100].map(v=>{const y=yS(v);return `<line x1="${PL}" y1="${y}" x2="${PL+cW}" y2="${y}" stroke="#1a2535" stroke-width="1" stroke-dasharray="${v%50===0?'none':'4,4'}"/><text x="${PL-6}" y="${y+4}" fill="#2a3a50" font-size="10" text-anchor="end" font-family="Share Tech Mono,monospace">${v}</text>`;}).join('');
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
-    <defs><linearGradient id="cg${uid}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
-    </linearGradient></defs>
+    <defs><linearGradient id="cg${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.3"/><stop offset="100%" stop-color="${color}" stop-opacity="0.02"/></linearGradient></defs>
     ${grid}
-    <line x1="${PL}" y1="${avgY}" x2="${PL+cW}" y2="${avgY}" stroke="${color}" stroke-width="1" stroke-dasharray="6,4" opacity="0.35"/>
-    <text x="${PL+cW+4}" y="${avgY+4}" fill="${color}" font-size="9" opacity="0.5" font-family="Share Tech Mono,monospace">AVG</text>
-    <path d="${fillD}" fill="url(#cg${uid})"/>
-    <path d="${pathD}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <line x1="${PL}" y1="${ay}" x2="${PL+cW}" y2="${ay}" stroke="${color}" stroke-width="1" stroke-dasharray="6,4" opacity="0.35"/>
+    <text x="${PL+cW+4}" y="${ay+4}" fill="${color}" font-size="9" opacity="0.5" font-family="Share Tech Mono,monospace">AVG</text>
+    <path d="${fd}" fill="url(#cg${uid})"/>
+    <path d="${pd}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
     <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="5" fill="${color}" stroke="#090d14" stroke-width="2"/>
     <text x="${pts[pts.length-1][0]+10}" y="${pts[pts.length-1][1]+4}" fill="${color}" font-size="12" font-family="Share Tech Mono,monospace" font-weight="bold">${history[history.length-1].toFixed(1)}</text>
   </svg>`;
 }
 
-// ── Breakdown data per metric ─────────────────────────
+// ── Breakdown data ────────────────────────────────────
 function getBreakdownItems(sym) {
   if (!currentMembers.length) return [];
   switch(sym) {
-    case 'NRG': return currentMembers.map(m=>({
-      name:m.name, sub:'', pct:m.energy*10,
-      color:energyColor(m.energy), val:`${m.energy}/10`,
-      tag:(FEEL_CONFIG[m.feel]?.symbol||'')+' '+(m.energy>=8?'PEAK':m.energy>=6?'GOOD':m.energy>=4?'LOW':'CRITICAL'),
-    })).sort((a,b)=>b.pct-a.pct);
-    case 'PRD': return currentMembers.map(m=>{
-      const s=Math.round((m.energy/10)*(FEEL_SCORES[m.feel]?.productivity||60));
-      return { name:m.name, sub:'', pct:s, color:s>=75?'#00ff88':s>=50?'#ffd700':'#ff3355', val:`${s}pts`, tag:(FEEL_CONFIG[m.feel]?.symbol||'')+' '+(FEEL_CONFIG[m.feel]?.label||'') };
-    }).sort((a,b)=>b.pct-a.pct);
-    case 'PRG': return currentMembers.map(m=>({
-      name:m.name, sub:m.task||'—', pct:m.progress,
-      color:m.progress>=75?'#00ff88':m.progress>=40?'#00d4ff':'#2a3a50',
-      val:`${m.progress}%`,
-      tag:m.progress>=90?'CLOSING IN':m.progress>=75?'STRONG':m.progress>=50?'MIDWAY':'EARLY',
-    })).sort((a,b)=>b.pct-a.pct);
-    case 'MRL': {
-      const counts={flowing:0,cruising:0,pushing:0,blocked:0,dragging:0};
-      currentMembers.forEach(m=>{if(counts[m.feel]!==undefined)counts[m.feel]++;});
-      return Object.entries(counts).map(([feel,n])=>({
-        name:`${FEEL_CONFIG[feel].symbol} ${FEEL_CONFIG[feel].label}`, sub:'',
-        pct:(n/currentMembers.length)*100, color:FEEL_CONFIG[feel].color,
-        val:`${n} ${n===1?'person':'people'}`, tag:'',
-      })).filter(i=>i.pct>0);
-    }
-    case 'MOM': return currentMembers.map(m=>{
-      const s=Math.round((m.progress/100)*(FEEL_SCORES[m.feel]?.momentum||60)+(m.energy/10)*25);
-      return { name:m.name, sub:'', pct:s, color:s>=70?'#00ff88':s>=45?'#ffd700':'#ff3355', val:`${s}pts`, tag:FEEL_CONFIG[m.feel]?.symbol||'' };
-    }).sort((a,b)=>b.pct-a.pct);
-    case 'FCS': return currentMembers.map(m=>{
-      const s=FEEL_SCORES[m.feel]?.focus||60;
-      return { name:m.name, sub:'', pct:s, color:s>=80?'#00ff88':s>=60?'#ffd700':'#ff3355', val:`${s}pts`, tag:FEEL_CONFIG[m.feel]?.label||'' };
-    }).sort((a,b)=>b.pct-a.pct);
+    case 'NRG': return currentMembers.map(m=>({ name:m.name, sub:'', pct:m.energy*10, color:energyColor(m.energy), val:`${m.energy}/10`, tag:(FEEL_CONFIG[m.feel]?.symbol||'')+' '+(m.energy>=8?'PEAK':m.energy>=6?'GOOD':m.energy>=4?'LOW':'CRITICAL') })).sort((a,b)=>b.pct-a.pct);
+    case 'PRD': return currentMembers.map(m=>{const s=Math.round((m.energy/10)*(FEEL_SCORES[m.feel]?.productivity||60));return{name:m.name,sub:'',pct:s,color:s>=75?'#00ff88':s>=50?'#ffd700':'#ff3355',val:`${s}pts`,tag:(FEEL_CONFIG[m.feel]?.symbol||'')+' '+(FEEL_CONFIG[m.feel]?.label||'')};}).sort((a,b)=>b.pct-a.pct);
+    case 'PRG': return currentMembers.map(m=>({ name:m.name, sub:m.task||'—', pct:m.progress, color:m.progress>=75?'#00ff88':m.progress>=40?'#00d4ff':'#2a3a50', val:`${m.progress}%`, tag:m.progress>=90?'CLOSING IN':m.progress>=75?'STRONG':m.progress>=50?'MIDWAY':'EARLY' })).sort((a,b)=>b.pct-a.pct);
+    case 'MRL': { const c={flowing:0,cruising:0,pushing:0,blocked:0,dragging:0}; currentMembers.forEach(m=>{if(c[m.feel]!==undefined)c[m.feel]++;}); return Object.entries(c).map(([f,n])=>({name:`${FEEL_CONFIG[f].symbol} ${FEEL_CONFIG[f].label}`,sub:'',pct:(n/currentMembers.length)*100,color:FEEL_CONFIG[f].color,val:`${n} ${n===1?'person':'people'}`,tag:''})).filter(i=>i.pct>0); }
+    case 'MOM': return currentMembers.map(m=>{const s=Math.round((m.progress/100)*(FEEL_SCORES[m.feel]?.momentum||60)+(m.energy/10)*25);return{name:m.name,sub:'',pct:s,color:s>=70?'#00ff88':s>=45?'#ffd700':'#ff3355',val:`${s}pts`,tag:FEEL_CONFIG[m.feel]?.symbol||''};}).sort((a,b)=>b.pct-a.pct);
+    case 'FCS': return currentMembers.map(m=>{const s=FEEL_SCORES[m.feel]?.focus||60;return{name:m.name,sub:'',pct:s,color:s>=80?'#00ff88':s>=60?'#ffd700':'#ff3355',val:`${s}pts`,tag:FEEL_CONFIG[m.feel]?.label||''};}).sort((a,b)=>b.pct-a.pct);
     default: return [];
   }
 }
+function getBreakdownTitle(sym) { return {NRG:'ENERGY BY PERSON',PRD:'PRODUCTIVITY BY PERSON',PRG:'TASK PROGRESS',MRL:'TEAM FEEL DISTRIBUTION',MOM:'MOMENTUM BY PERSON',FCS:'FOCUS BY PERSON'}[sym]||'BREAKDOWN'; }
 
-function getBreakdownTitle(sym) {
-  return { NRG:'ENERGY BY PERSON', PRD:'PRODUCTIVITY BY PERSON', PRG:'TASK PROGRESS', MRL:'TEAM FEEL DISTRIBUTION', MOM:'MOMENTUM BY PERSON', FCS:'FOCUS BY PERSON' }[sym] || 'BREAKDOWN';
-}
-
-// ── Detail news strip data ────────────────────────────
-function getDetailNews(sym) {
-  const live = buildLiveMessages(currentMembers, currentNews);
-  const relevant = live.filter(m=>m.sym===sym||m.isNews);
-  return (relevant.length ? relevant : live).slice(0,8);
-}
-
-// ── Card render ───────────────────────────────────────
-function renderCard(m, idx) {
-  const isUp=m.change>=0, cc=isUp?'up-color up-shadow':'down-color down-shadow', sign=isUp?'+':'';
-  const high=Math.max(...m.history).toFixed(1), low=Math.min(...m.history).toFixed(1);
-  return `<div class="card" id="card-${idx}" style="--card-accent:${isUp?'var(--green)':'var(--red)'}">
-    <div class="card-header">
-      <div><div class="symbol">${m.symbol}</div><div class="card-name">${m.name}</div></div>
-      <div class="badge ${isUp?'up':'down'}" id="badge-${idx}">${isUp?'▲ GAINING':'▼ LOSING'}</div>
-    </div>
-    <div class="value-row">
-      <div class="value ${cc}" id="val-${idx}">${m.value.toFixed(1)}</div>
-      <div class="change-block">
-        <div class="arrow ${cc}" id="arrow-${idx}">${isUp?'▲':'▼'}</div>
-        <div class="change-pct ${cc}" id="pct-${idx}">${sign}${m.change.toFixed(1)}%</div>
-        <div class="change-abs" id="abs-${idx}"></div>
-      </div>
-    </div>
-    <div class="sparkline-wrap" id="spark-${idx}">${buildSparkline(m.history,isUp)}</div>
-    <div class="stats-row">
-      <div class="stat"><span class="label">HIGH</span><span class="val">${high}</span></div>
-      <div class="stat"><span class="label">LOW</span><span class="val">${low}</span></div>
-      <div class="stat"><span class="label">AVG</span><span class="val">${avg(m.history).toFixed(1)}</span></div>
-      <div class="stat"><span class="label">SRC</span><span class="val" id="src-${idx}">${currentMembers.length?currentMembers.length+' mbr':'SIM'}</span></div>
-    </div>
-  </div>`;
-}
-
-function buildDashboardHTML() {
-  return `<div class="dashboard-view">${METRICS.map((m,i)=>renderCard(m,i)).join('')}</div>`;
-}
-
-// ── Detail screen HTML ────────────────────────────────
-function buildDetailHTML(mIdx) {
-  const m=METRICS[mIdx];
-  const isUp=m.change>=0, color=isUp?'#00ff88':'#ff3355', sign=isUp?'+':'';
-  const nextMIdx=(mIdx+1)%METRICS.length;
-  const nextLabel=mIdx===5?'OVERVIEW':`${METRICS[nextMIdx].symbol} ${METRICS[nextMIdx].name.toUpperCase()}`;
-  const items=getBreakdownItems(m.symbol);
-  const news=getDetailNews(m.symbol);
-
-  const newsHTML=news.length
-    ? [...news,...news].map(n=>`<span class="news-item"><span class="news-sym" style="color:${n.dir==='up'?'var(--green)':'var(--red)'}">${n.sym} ${n.dir==='up'?'▲':'▼'}</span><span class="news-msg${n.isNews?' news-bulletin':''}">${n.msg}</span></span>`).join('<span class="news-sep">◆</span>')
-    : '<span class="news-item"><span class="news-msg">No updates yet</span></span>';
-
-  const breakdownHTML=items.length
-    ? items.map(it=>`<div class="br-row">
-        <div><div class="br-name">${it.name}</div>${it.sub?`<div class="br-sub">${it.sub}</div>`:''}</div>
-        <div class="br-bar-wrap"><div class="br-bar-fill" style="width:${Math.min(it.pct,100)}%;background:${it.color}"></div></div>
-        <span class="br-val" style="color:${it.color}">${it.val}</span>
-        <span class="br-tag">${it.tag}</span>
-      </div>`).join('')
-    : '<div class="no-data">No team data yet</div>';
-
-  return `<div class="detail-screen">
-    <div class="detail-hero" style="--metric-color:${color}">
-      <div>
-        <div class="dh-sym" style="color:${color}">${m.symbol}</div>
-        <div class="dh-name">${m.name}</div>
-      </div>
-      <div class="dh-value-wrap">
-        <div class="dh-big" style="color:${color};text-shadow:0 0 30px ${color}40">${m.value.toFixed(1)}</div>
-        <div class="dh-change-wrap">
-          <div class="dh-arrow" style="color:${color}">${isUp?'▲':'▼'}</div>
-          <div class="dh-pct" style="color:${color}">${sign}${m.change.toFixed(1)}%</div>
-        </div>
-      </div>
-      <div class="dh-stats">
-        <div class="dhs"><span class="l">HIGH</span><span class="v">${Math.max(...m.history).toFixed(1)}</span></div>
-        <div class="dhs"><span class="l">LOW</span><span class="v">${Math.min(...m.history).toFixed(1)}</span></div>
-        <div class="dhs"><span class="l">AVG</span><span class="v">${avg(m.history).toFixed(1)}</span></div>
-        <div class="dhs"><span class="l">TEAM</span><span class="v">${currentMembers.length||'—'}</span></div>
-      </div>
-      <div class="dh-nav">
-        <div class="dh-screen-num">${mIdx+2} / ${TOTAL_SCREENS}</div>
-        <div class="dh-next">NEXT: <span>${nextLabel}</span></div>
-      </div>
-    </div>
-    <div class="detail-body">
-      <div class="detail-chart-panel">
-        <div class="panel-label">HISTORY — LAST ${m.history.length} READINGS</div>
-        <div class="chart-wrap">${buildLineChart(m.history,isUp)}</div>
-      </div>
-      <div class="detail-break-panel">
-        <div class="panel-label">${getBreakdownTitle(m.symbol)}</div>
-        <div class="br-items">${breakdownHTML}</div>
-      </div>
-    </div>
-    <div class="detail-news">
-      <span class="news-label">LIVE</span>
-      <div class="news-scroll"><div class="news-track" id="news-track">${newsHTML}</div></div>
-    </div>
-  </div>`;
-}
-
-// ── Card DOM update ───────────────────────────────────
-function updateCardDOM(idx) {
-  const m=METRICS[idx];
-  const prev=m.history[m.history.length-2]||m.value;
-  const tick=m.value>=prev, netUp=m.change>=0;
-  const cc=netUp?'up-color up-shadow':'down-color down-shadow';
-  const sign=m.change>=0?'+':'';
-  const card=document.getElementById(`card-${idx}`);
-  if(!card) return;
-  card.style.setProperty('--card-accent',netUp?'var(--green)':'var(--red)');
-  const valEl=document.getElementById(`val-${idx}`);
-  if(valEl){valEl.textContent=m.value.toFixed(1);valEl.className=`value ${cc} numflash`;setTimeout(()=>{if(valEl)valEl.className=`value ${cc}`;},600);}
-  const s=(id,t)=>{const e=document.getElementById(id);if(e)e.textContent=t;};
-  const c=(id,cl)=>{const e=document.getElementById(id);if(e)e.className=cl;};
-  c(`arrow-${idx}`,`arrow ${cc}`); s(`arrow-${idx}`,netUp?'▲':'▼');
-  c(`pct-${idx}`,`change-pct ${cc}`); s(`pct-${idx}`,`${sign}${m.change.toFixed(1)}%`);
-  s(`abs-${idx}`,`${tick?'+':''}${(m.value-prev).toFixed(2)} ${m.unit}`);
-  const sp=document.getElementById(`spark-${idx}`);
-  if(sp) sp.innerHTML=buildSparkline(m.history,netUp);
-  const bg=document.getElementById(`badge-${idx}`);
-  if(bg){bg.className=`badge ${netUp?'up':'down'}`;bg.textContent=netUp?'▲ GAINING':'▼ LOSING';}
-  card.classList.remove('pulse-green','pulse-red');
-  void card.offsetWidth;
-  card.classList.add(tick?'pulse-green':'pulse-red');
-}
-
-// ── Metrics from team ─────────────────────────────────
-function computeFromTeam(members) {
-  if(!members.length) return null;
-  const g=fn=>avg(members.map(fn));
-  return {
-    NRG:g(m=>m.energy*10), PRD:g(m=>(m.energy/10)*(FEEL_SCORES[m.feel]?.productivity||60)),
-    PRG:g(m=>m.progress),  MRL:g(m=>FEEL_SCORES[m.feel]?.morale||60),
-    FCS:g(m=>FEEL_SCORES[m.feel]?.focus||60),
-    MOM:g(m=>(m.progress/100)*(FEEL_SCORES[m.feel]?.momentum||60)+(m.energy/10)*25),
-  };
-}
-function applyTeamMetrics(tv, n, mods) {
-  const idx={NRG:0,PRD:1,PRG:2,MRL:3,MOM:4,FCS:5};
-  for(const[sym,val] of Object.entries(tv)){
-    const i=idx[sym]; if(i===undefined) continue;
-    const m=METRICS[i];
-    m.value=+Math.max(0,Math.min(100,val+(mods[sym]||0))).toFixed(2);
-    m.change=+(m.value-m.history[0]).toFixed(2);
-    m.history.push(m.value); if(m.history.length>30) m.history.shift();
-    const src=document.getElementById(`src-${i}`);
-    if(src) src.textContent=n+' mbr';
-    updateCardDOM(i);
-  }
-}
-
-// ── Team strip ────────────────────────────────────────
-function renderTeamStrip(members) {
-  const el=document.getElementById('team-members'); if(!el) return;
-  if(!members.length){el.innerHTML='<span class="no-members">No submissions yet</span>';return;}
-  el.innerHTML=members.map(m=>{
-    const feel=FEEL_CONFIG[m.feel]||FEEL_CONFIG.pushing;
-    const ini=m.name.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
-    const ec=energyColor(m.energy);
-    return `<div class="member-chip">
-      <div class="member-avatar">${ini}</div>
-      <div class="member-details"><div class="member-name">${m.name.toUpperCase()}</div><div class="member-task">${m.task||'—'}</div></div>
-      <div class="member-right">
-        <div class="member-energy-wrap"><div class="member-energy-bar"><div class="energy-fill" style="width:${m.energy*10}%;background:${ec}"></div></div><span class="member-energy-val" style="color:${ec}">${m.energy}/10</span></div>
-        <div class="progress-wrap"><div class="progress-mini"><div class="progress-fill" style="width:${m.progress}%"></div></div><span class="member-progress">${m.progress}%</span></div>
-        <span class="feel-tag" style="color:${feel.color}">${feel.symbol} ${feel.label}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── Ticker ────────────────────────────────────────────
+// ── Live messages & news mods ─────────────────────────
 function buildLiveMessages(members, newsItems) {
   const auto=[];
   members.forEach(m=>{
-    if(m.energy>=8) auto.push({sym:'NRG',dir:'up',  msg:`${m.name} running at ${m.energy}/10 — peak performance window`});
+    if(m.energy>=8)    auto.push({sym:'NRG',dir:'up',  msg:`${m.name} running at ${m.energy}/10 — peak performance window`});
     else if(m.energy<=3) auto.push({sym:'NRG',dir:'down',msg:`${m.name} at ${m.energy}/10 — energy break recommended`});
     if(m.feel==='blocked') auto.push({sym:'PRG',dir:'down',msg:`${m.name} blocked on "${m.task}" — may need support`});
     if(m.feel==='flowing') auto.push({sym:'FCS',dir:'up',  msg:`${m.name} in flow state on "${m.task}" — do not disturb`});
     if(m.feel==='dragging')auto.push({sym:'MOM',dir:'down',msg:`${m.name} dragging on "${m.task}" — check in?`});
-    if(m.progress>=90) auto.push({sym:'PRD',dir:'up',msg:`${m.name} closing in — "${m.task}" at ${m.progress}%`});
+    if(m.progress>=90)      auto.push({sym:'PRD',dir:'up',msg:`${m.name} closing in — "${m.task}" at ${m.progress}%`});
     else if(m.progress>=75) auto.push({sym:'PRG',dir:'up',msg:`${m.name} at ${m.progress}% on "${m.task}" — strong push`});
   });
-  const news=newsItems.slice(-20).map(n=>{
-    const cfg=NEWS_TYPE_CONFIG[n.type]||NEWS_TYPE_CONFIG.update;
-    return { sym:cfg.symbol, dir:cfg.dir, msg:`${n.author}: ${n.text}`, isNews:true, newsType:n.type };
-  });
+  const news=newsItems.slice(-20).map(n=>{const cfg=NEWS_TYPE_CONFIG[n.type]||NEWS_TYPE_CONFIG.update;return{sym:cfg.symbol,dir:cfg.dir,msg:`${n.author}: ${n.text}`,isNews:true,newsType:n.type};});
   return [...news,...auto];
 }
 
@@ -588,11 +416,126 @@ function computeNewsModifiers(newsItems) {
   newsItems.filter(n=>(n.timestamp||0)>cutoff).forEach(n=>{
     Object.entries(NEWS_MODS[n.type]||{}).forEach(([sym,d])=>{if(mods[sym]!==undefined)mods[sym]+=d;});
   });
-  Object.keys(mods).forEach(k=>{mods[k]=Math.max(-15,Math.min(15,mods[k]));});
+  Object.keys(mods).forEach(k=>{mods[k]=clamp(mods[k],-15,15);});
   return mods;
 }
 
-let tickerPos=0, tickerHalfW=0;
+function getDetailNews(sym) {
+  const live=buildLiveMessages(currentMembers,currentNews);
+  const rel=live.filter(m=>m.sym===sym||m.isNews);
+  return (rel.length?rel:live).slice(0,8);
+}
+
+// ── Card render ───────────────────────────────────────
+function renderCard(m, idx) {
+  const isUp=m.change>=0, cc=isUp?'up-color up-shadow':'down-color down-shadow', sign=isUp?'+':'';
+  const high=Math.max(...m.history).toFixed(1), low=Math.min(...m.history).toFixed(1);
+  return `<div class="card" id="card-${idx}" style="--card-accent:${isUp?'var(--green)':'var(--red)'}">
+    <div class="card-header"><div><div class="symbol">${m.symbol}</div><div class="card-name">${m.name}</div></div><div class="badge ${isUp?'up':'down'}" id="badge-${idx}">${isUp?'▲ GAINING':'▼ LOSING'}</div></div>
+    <div class="value-row"><div class="value ${cc}" id="val-${idx}">${m.value.toFixed(1)}</div><div class="change-block"><div class="arrow ${cc}" id="arrow-${idx}">${isUp?'▲':'▼'}</div><div class="change-pct ${cc}" id="pct-${idx}">${sign}${m.change.toFixed(1)}%</div><div class="change-abs" id="abs-${idx}"></div></div></div>
+    <div class="sparkline-wrap" id="spark-${idx}">${buildSparkline(m.history,isUp)}</div>
+    <div class="stats-row"><div class="stat"><span class="label">HIGH</span><span class="val">${high}</span></div><div class="stat"><span class="label">LOW</span><span class="val">${low}</span></div><div class="stat"><span class="label">AVG</span><span class="val">${avg(m.history).toFixed(1)}</span></div><div class="stat"><span class="label">SRC</span><span class="val" id="src-${idx}">${currentMembers.length?currentMembers.length+' mbr':'SIM'}</span></div></div>
+  </div>`;
+}
+
+function buildDashboardHTML() {
+  return `<div class="dashboard-view">${METRICS.map((m,i)=>renderCard(m,i)).join('')}</div>`;
+}
+
+// ── Detail screen ─────────────────────────────────────
+function buildDetailHTML(mIdx) {
+  const m=METRICS[mIdx], isUp=m.change>=0, color=isUp?'#00ff88':'#ff3355', sign=isUp?'+':'';
+  const nextMIdx=(mIdx+1)%METRICS.length;
+  const nextLabel=mIdx===5?'QR CODE':`${METRICS[nextMIdx].symbol} ${METRICS[nextMIdx].name.toUpperCase()}`;
+  const items=getBreakdownItems(m.symbol), news=getDetailNews(m.symbol);
+  const newsHTML=news.length?[...news,...news].map(n=>`<span class="news-item"><span class="news-sym" style="color:${n.dir==='up'?'var(--green)':'var(--red)'}">${n.sym} ${n.dir==='up'?'▲':'▼'}</span><span class="news-msg${n.isNews?' news-bulletin':''}">${n.msg}</span></span>`).join('<span class="news-sep">◆</span>'):'<span class="news-item"><span class="news-msg">No updates yet</span></span>';
+  const brHTML=items.length?items.map(it=>`<div class="br-row"><div><div class="br-name">${it.name}</div>${it.sub?`<div class="br-sub">${it.sub}</div>`:''}</div><div class="br-bar-wrap"><div class="br-bar-fill" style="width:${Math.min(it.pct,100)}%;background:${it.color}"></div></div><span class="br-val" style="color:${it.color}">${it.val}</span><span class="br-tag">${it.tag}</span></div>`).join(''):'<div class="no-data">No team data yet</div>';
+  return `<div class="detail-screen">
+    <div class="detail-hero" style="--metric-color:${color}">
+      <div><div class="dh-sym" style="color:${color}">${m.symbol}</div><div class="dh-name">${m.name}</div></div>
+      <div class="dh-value-wrap"><div class="dh-big" style="color:${color};text-shadow:0 0 30px ${color}40">${m.value.toFixed(1)}</div><div class="dh-change-wrap"><div class="dh-arrow" style="color:${color}">${isUp?'▲':'▼'}</div><div class="dh-pct" style="color:${color}">${sign}${m.change.toFixed(1)}%</div></div></div>
+      <div class="dh-stats"><div class="dhs"><span class="l">HIGH</span><span class="v">${Math.max(...m.history).toFixed(1)}</span></div><div class="dhs"><span class="l">LOW</span><span class="v">${Math.min(...m.history).toFixed(1)}</span></div><div class="dhs"><span class="l">AVG</span><span class="v">${avg(m.history).toFixed(1)}</span></div><div class="dhs"><span class="l">TEAM</span><span class="v">${currentMembers.length||'—'}</span></div></div>
+      <div class="dh-nav"><div class="dh-screen-num">${mIdx+2} / ${TOTAL_SCREENS}</div><div class="dh-next">NEXT: <span>${nextLabel}</span></div></div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-chart-panel"><div class="panel-label">HISTORY — LAST ${m.history.length} READINGS</div><div class="chart-wrap">${buildLineChart(m.history,isUp)}</div></div>
+      <div class="detail-break-panel"><div class="panel-label">${getBreakdownTitle(m.symbol)}</div><div class="br-items">${brHTML}</div></div>
+    </div>
+    <div class="detail-news"><span class="news-label">LIVE</span><div class="news-scroll"><div class="news-track" id="news-track">${newsHTML}</div></div></div>
+  </div>`;
+}
+
+// ── QR screen ─────────────────────────────────────────
+function buildQRHTML() {
+  return `<div class="qr-screen">
+    <div class="qr-content">
+      <div class="qr-eyebrow">STUDIO ECONOMY</div>
+      <div class="qr-headline">CARE TO SHARE?</div>
+      <div class="qr-sub">Let the board know where you're at</div>
+      <div class="qr-frame"><div id="qr-canvas"></div></div>
+      <div class="qr-url">${window.location.origin}/input.html</div>
+      <div class="qr-hint">SCAN TO SUBMIT YOUR STATUS</div>
+    </div>
+  </div>`;
+}
+
+function generateQR() {
+  const el=document.getElementById('qr-canvas');
+  if(!el||!window.QRCode) return;
+  el.innerHTML='';
+  new QRCode(el,{ text:window.location.origin+'/input.html', width:260, height:260, colorDark:'#050810', colorLight:'#ffffff' });
+}
+
+// ── Card DOM update ───────────────────────────────────
+function updateCardDOM(idx) {
+  const m=METRICS[idx], prev=m.history[m.history.length-2]||m.value;
+  const tick=m.value>=prev, netUp=m.change>=0, cc=netUp?'up-color up-shadow':'down-color down-shadow', sign=m.change>=0?'+':'';
+  const card=document.getElementById(`card-${idx}`); if(!card) return;
+  card.style.setProperty('--card-accent',netUp?'var(--green)':'var(--red)');
+  const valEl=document.getElementById(`val-${idx}`);
+  if(valEl){valEl.textContent=m.value.toFixed(1);valEl.className=`value ${cc} numflash`;setTimeout(()=>{if(valEl)valEl.className=`value ${cc}`;},600);}
+  const s=(id,t)=>{const e=document.getElementById(id);if(e)e.textContent=t;};
+  const c=(id,cl)=>{const e=document.getElementById(id);if(e)e.className=cl;};
+  c(`arrow-${idx}`,`arrow ${cc}`); s(`arrow-${idx}`,netUp?'▲':'▼');
+  c(`pct-${idx}`,`change-pct ${cc}`); s(`pct-${idx}`,`${sign}${m.change.toFixed(1)}%`);
+  s(`abs-${idx}`,`${tick?'+':''}${(m.value-prev).toFixed(2)} ${m.unit}`);
+  const sp=document.getElementById(`spark-${idx}`); if(sp) sp.innerHTML=buildSparkline(m.history,netUp);
+  const bg=document.getElementById(`badge-${idx}`); if(bg){bg.className=`badge ${netUp?'up':'down'}`;bg.textContent=netUp?'▲ GAINING':'▼ LOSING';}
+  card.classList.remove('pulse-green','pulse-red'); void card.offsetWidth; card.classList.add(tick?'pulse-green':'pulse-red');
+}
+
+// ── Team metrics ──────────────────────────────────────
+function computeFromTeam(members) {
+  if(!members.length) return null;
+  const g=fn=>avg(members.map(fn));
+  return { NRG:g(m=>m.energy*10), PRD:g(m=>(m.energy/10)*(FEEL_SCORES[m.feel]?.productivity||60)), PRG:g(m=>m.progress), MRL:g(m=>FEEL_SCORES[m.feel]?.morale||60), FCS:g(m=>FEEL_SCORES[m.feel]?.focus||60), MOM:g(m=>(m.progress/100)*(FEEL_SCORES[m.feel]?.momentum||60)+(m.energy/10)*25) };
+}
+
+function applyTeamMetrics(tv, n, mods) {
+  const idx={NRG:0,PRD:1,PRG:2,MRL:3,MOM:4,FCS:5};
+  for(const[sym,val] of Object.entries(tv)){
+    const i=idx[sym]; if(i===undefined) continue;
+    const m=METRICS[i];
+    m.value=+clamp(val+(mods[sym]||0),0,100).toFixed(2);
+    m.change=+(m.value-m.history[0]).toFixed(2);
+    m.history.push(m.value); if(m.history.length>30) m.history.shift();
+    const src=document.getElementById(`src-${i}`); if(src) src.textContent=n+' mbr';
+    updateCardDOM(i);
+  }
+  renderDefcon(calculateDefcon());
+}
+
+// ── Team strip ────────────────────────────────────────
+function renderTeamStrip(members) {
+  const el=document.getElementById('team-members'); if(!el) return;
+  if(!members.length){el.innerHTML='<span class="no-members">No submissions yet</span>';return;}
+  el.innerHTML=members.map(m=>{
+    const feel=FEEL_CONFIG[m.feel]||FEEL_CONFIG.pushing, ini=m.name.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2), ec=energyColor(m.energy);
+    return `<div class="member-chip"><div class="member-avatar">${ini}</div><div class="member-details"><div class="member-name">${m.name.toUpperCase()}</div><div class="member-task">${m.task||'—'}</div></div><div class="member-right"><div class="member-energy-wrap"><div class="member-energy-bar"><div class="energy-fill" style="width:${m.energy*10}%;background:${ec}"></div></div><span class="member-energy-val" style="color:${ec}">${m.energy}/10</span></div><div class="progress-wrap"><div class="progress-mini"><div class="progress-fill" style="width:${m.progress}%"></div></div><span class="member-progress">${m.progress}%</span></div><span class="feel-tag" style="color:${feel.color}">${feel.symbol} ${feel.label}</span></div></div>`;
+  }).join('');
+}
+
+// ── Ticker ────────────────────────────────────────────
 function renderTickItem(t){
   const ac=t.dir==='up'?'var(--green)':'var(--red)';
   return `<span class="tick-item"><span class="tick-sym">${t.sym}</span><span class="tick-arrow" style="color:${ac}">${t.dir==='up'?'▲':'▼'}</span><span class="tick-msg${t.isNews?' tick-bulletin':''}">${t.msg}</span></span>`;
@@ -606,48 +549,52 @@ function rebuildTicker(live){
 }
 function animateTicker(){
   const track=document.getElementById('ticker-track');
-  if(track){
-    if(!tickerHalfW) tickerHalfW=track.scrollWidth/2;
-    tickerPos-=1.2;
-    if(Math.abs(tickerPos)>=tickerHalfW) tickerPos=0;
-    track.style.transform=`translateX(${tickerPos}px)`;
-  }
+  if(track){ if(!tickerHalfW) tickerHalfW=track.scrollWidth/2; tickerPos-=1.2; if(Math.abs(tickerPos)>=tickerHalfW) tickerPos=0; track.style.transform=`translateX(${tickerPos}px)`; }
   requestAnimationFrame(animateTicker);
 }
 
 // ── Detail news scroll ────────────────────────────────
-let newsAnimFrame=null;
 function animateNews(){
   const track=document.getElementById('news-track');
-  if(track){
-    if(!newsHalfWidth) newsHalfWidth=track.scrollWidth/2;
-    newsPos-=0.9;
-    if(Math.abs(newsPos)>=newsHalfWidth) newsPos=0;
-    track.style.transform=`translateX(${newsPos}px)`;
-  }
+  if(track){ if(!newsHalfWidth) newsHalfWidth=track.scrollWidth/2; newsPos-=0.9; if(Math.abs(newsPos)>=newsHalfWidth) newsPos=0; track.style.transform=`translateX(${newsPos}px)`; }
   newsAnimFrame=requestAnimationFrame(animateNews);
 }
 
-// ── Rotation & slide ──────────────────────────────────
-function startProgressBar(){
-  const fill=document.getElementById('rot-fill'); if(!fill) return;
-  fill.style.transition='none'; fill.style.width='0%';
-  requestAnimationFrame(()=>{ fill.style.transition=`width ${SLIDE_DURATION}ms linear`; fill.style.width='100%'; });
+// ── Rotation ──────────────────────────────────────────
+function getDuration(idx) {
+  if (idx===0) return dashboardDuration;
+  if (idx===TOTAL_SCREENS-1) return qrDuration;
+  return detailDuration;
 }
 
-function slideToScreen(html, newIdx){
+function startProgressBar(duration) {
+  const fill=document.getElementById('rot-fill'); if(!fill) return;
+  fill.style.transition='none'; fill.style.width='0%';
+  requestAnimationFrame(()=>{ fill.style.transition=`width ${duration}ms linear`; fill.style.width='100%'; });
+}
+
+function getScreenHTML(idx) {
+  if (idx===0) return buildDashboardHTML();
+  if (idx===TOTAL_SCREENS-1) return buildQRHTML();
+  return buildDetailHTML(idx-1);
+}
+
+function scheduleNext() {
+  if (rotationTimeout) clearTimeout(rotationTimeout);
+  rotationTimeout = setTimeout(advance, getDuration(currentScreenIdx));
+}
+
+function slideToScreen(html, newIdx) {
   if(isTransitioning) return;
   isTransitioning=true;
   const a=document.getElementById('screen-a'), b=document.getElementById('screen-b');
   b.innerHTML=html;
   b.style.transition='none'; b.style.transform='translateX(100%)';
-  // kill news animation before slide
   if(newsAnimFrame){ cancelAnimationFrame(newsAnimFrame); newsAnimFrame=null; newsPos=0; newsHalfWidth=0; }
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     a.style.transition=`transform ${ANIM_DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
     b.style.transition=`transform ${ANIM_DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
-    a.style.transform='translateX(-100%)';
-    b.style.transform='translateX(0)';
+    a.style.transform='translateX(-100%)'; b.style.transform='translateX(0)';
     setTimeout(()=>{
       currentScreenIdx=newIdx;
       a.innerHTML=b.innerHTML;
@@ -656,16 +603,17 @@ function slideToScreen(html, newIdx){
       isTransitioning=false;
       buildDots();
       if(newIdx===0) METRICS.forEach((_,i)=>updateCardDOM(i));
+      else if(newIdx===TOTAL_SCREENS-1) { requestAnimationFrame(generateQR); }
       else { newsPos=0; newsHalfWidth=0; animateNews(); }
+      scheduleNext();
     }, ANIM_DURATION);
   }));
 }
 
-function advance(){
+function advance() {
   const nextIdx=(currentScreenIdx+1)%TOTAL_SCREENS;
-  const html=nextIdx===0 ? buildDashboardHTML() : buildDetailHTML(nextIdx-1);
-  slideToScreen(html, nextIdx);
-  startProgressBar();
+  slideToScreen(getScreenHTML(nextIdx), nextIdx);
+  startProgressBar(getDuration(nextIdx));
 }
 
 // ── Firebase ──────────────────────────────────────────
@@ -677,21 +625,30 @@ db.ref('studio_economy').on('value', snapshot=>{
   if(currentMembers.length){
     renderTeamStrip(currentMembers);
     const tv=computeFromTeam(currentMembers);
-    if(tv) applyTeamMetrics(tv, currentMembers.length, mods);
+    if(tv) applyTeamMetrics(tv,currentMembers.length,mods);
     rebuildTicker(buildLiveMessages(currentMembers,currentNews));
   } else {
     renderTeamStrip([]);
     rebuildTicker(buildLiveMessages([],currentNews));
+    renderDefcon(null);
   }
 });
 
+db.ref('studio_economy/settings').on('value', snapshot=>{
+  const s=snapshot.val()||{};
+  if(s.dashboardDuration) dashboardDuration=s.dashboardDuration*1000;
+  if(s.detailDuration)    detailDuration   =s.detailDuration*1000;
+  if(s.qrDuration)        qrDuration       =s.qrDuration*1000;
+  if(s.defconThresholds)  defconThresholds ={...DEFAULT_DEFCON_THRESHOLDS,...s.defconThresholds};
+});
+
 // ── Init ──────────────────────────────────────────────
-document.getElementById('screen-a').innerHTML = buildDashboardHTML();
+document.getElementById('screen-a').innerHTML=buildDashboardHTML();
 buildDots();
 rebuildTicker([]);
 animateTicker();
-startProgressBar();
-setInterval(advance, SLIDE_DURATION);
+startProgressBar(dashboardDuration);
+scheduleNext();
 </script>
 </body>
 </html>
