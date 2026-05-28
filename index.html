@@ -240,17 +240,26 @@ const METRICS = [
   { symbol:'MOM', name:'Momentum',     value:73.5, change:-0.9, unit:'pts', history:[76,75,74,75,74,73,74,73,74,73,73,74,73,73,73.5] },
   { symbol:'FCS', name:'Focus',        value:88.7, change:+1.4, unit:'pts', history:[82,84,83,85,86,85,87,86,87,88,88,89,88,89,88.7] },
 ];
-const SIM_FEED = [
-  { sym:'NRG', dir:'up',   msg:'Team energy spiking after morning standup — daily high' },
-  { sym:'PRD', dir:'up',   msg:'5 tasks shipped in the last hour — strong execution window' },
-  { sym:'MRL', dir:'up',   msg:'Coffee machine fixed — morale at weekly high' },
-  { sym:'PRG', dir:'down', msg:'Sprint blocker identified — investigation underway' },
-  { sym:'FCS', dir:'up',   msg:'Deep work session active — interruptions minimal' },
-  { sym:'MOM', dir:'down', msg:'Afternoon dip — suggest energy break' },
-  { sym:'PRD', dir:'up',   msg:'PR review queue cleared — unblocking velocity' },
-  { sym:'MRL', dir:'up',   msg:'Team shoutout issued — positive sentiment rising' },
-  { sym:'PRG', dir:'up',   msg:'Blocker resolved — progress rate recovering' },
-  { sym:'MOM', dir:'up',   msg:'Pair programming session boosting momentum' },
+const NEWS_TYPE_CONFIG = {
+  win:      { label:'WIN',      symbol:'★', color:'#ffd700', dir:'up'   },
+  done:     { label:'DONE',     symbol:'✓', color:'#00ff88', dir:'up'   },
+  blocked:  { label:'BLOCKED',  symbol:'✖', color:'#ff3355', dir:'down' },
+  boost:    { label:'BOOST',    symbol:'⚡', color:'#00d4ff', dir:'up'   },
+  shoutout: { label:'SHOUTOUT', symbol:'▲', color:'#ff8c00', dir:'up'   },
+  update:   { label:'UPDATE',   symbol:'◆', color:'#c8d8e8', dir:'up'   },
+};
+const NEWS_MODS = {
+  win:      { MRL:6,  PRD:4,  MOM:5,  NRG:3  },
+  done:     { PRD:7,  PRG:5,  MOM:6           },
+  blocked:  { PRD:-5, PRG:-4, MOM:-4          },
+  boost:    { NRG:7,  FCS:5,  MRL:3           },
+  shoutout: { MRL:8,  NRG:4                   },
+  update:   {},
+};
+const EMPTY_FEED = [
+  { sym:'STU', dir:'up', msg:'Studio Economy is live — open /input to check in' },
+  { sym:'NRG', dir:'up', msg:'Waiting for the team — be the first to submit your status' },
+  { sym:'PRD', dir:'up', msg:'No data yet — energy, progress and focus are standing by' },
 ];
 const SLIDE_DURATION = 10000;
 const ANIM_DURATION  = 700;
@@ -258,8 +267,8 @@ const TOTAL_SCREENS  = 7; // 1 dashboard + 6 metrics
 
 // ── State ─────────────────────────────────────────────
 const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
-let currentMembers  = [];
-let currentBulletins = [];
+let currentMembers = [];
+let currentNews    = [];
 let currentScreenIdx = 0;
 let isTransitioning  = false;
 let newsPos = 0;
@@ -384,8 +393,8 @@ function getBreakdownTitle(sym) {
 
 // ── Detail news strip data ────────────────────────────
 function getDetailNews(sym) {
-  const live = buildLiveMessages(currentMembers, currentBulletins);
-  const relevant = live.filter(m=>m.sym===sym||m.isBulletin);
+  const live = buildLiveMessages(currentMembers, currentNews);
+  const relevant = live.filter(m=>m.sym===sym||m.isNews);
   return (relevant.length ? relevant : live).slice(0,8);
 }
 
@@ -430,7 +439,7 @@ function buildDetailHTML(mIdx) {
   const news=getDetailNews(m.symbol);
 
   const newsHTML=news.length
-    ? [...news,...news].map(n=>`<span class="news-item"><span class="news-sym" style="color:${n.dir==='up'?'var(--green)':'var(--red)'}">${n.sym} ${n.dir==='up'?'▲':'▼'}</span><span class="news-msg${n.isBulletin?' news-bulletin':''}">${n.msg}</span></span>`).join('<span class="news-sep">◆</span>')
+    ? [...news,...news].map(n=>`<span class="news-item"><span class="news-sym" style="color:${n.dir==='up'?'var(--green)':'var(--red)'}">${n.sym} ${n.dir==='up'?'▲':'▼'}</span><span class="news-msg${n.isNews?' news-bulletin':''}">${n.msg}</span></span>`).join('<span class="news-sep">◆</span>')
     : '<span class="news-item"><span class="news-msg">No updates yet</span></span>';
 
   const breakdownHTML=items.length
@@ -520,12 +529,13 @@ function computeFromTeam(members) {
     MOM:g(m=>(m.progress/100)*(FEEL_SCORES[m.feel]?.momentum||60)+(m.energy/10)*25),
   };
 }
-function applyTeamMetrics(tv, n) {
+function applyTeamMetrics(tv, n, mods) {
   const idx={NRG:0,PRD:1,PRG:2,MRL:3,MOM:4,FCS:5};
   for(const[sym,val] of Object.entries(tv)){
     const i=idx[sym]; if(i===undefined) continue;
     const m=METRICS[i];
-    m.value=+val.toFixed(2); m.change=+(m.value-m.history[0]).toFixed(2);
+    m.value=+Math.max(0,Math.min(100,val+(mods[sym]||0))).toFixed(2);
+    m.change=+(m.value-m.history[0]).toFixed(2);
     m.history.push(m.value); if(m.history.length>30) m.history.shift();
     const src=document.getElementById(`src-${i}`);
     if(src) src.textContent=n+' mbr';
@@ -554,7 +564,7 @@ function renderTeamStrip(members) {
 }
 
 // ── Ticker ────────────────────────────────────────────
-function buildLiveMessages(members, bulletins) {
+function buildLiveMessages(members, newsItems) {
   const auto=[];
   members.forEach(m=>{
     if(m.energy>=8) auto.push({sym:'NRG',dir:'up',  msg:`${m.name} running at ${m.energy}/10 — peak performance window`});
@@ -565,17 +575,30 @@ function buildLiveMessages(members, bulletins) {
     if(m.progress>=90) auto.push({sym:'PRD',dir:'up',msg:`${m.name} closing in — "${m.task}" at ${m.progress}%`});
     else if(m.progress>=75) auto.push({sym:'PRG',dir:'up',msg:`${m.name} at ${m.progress}% on "${m.task}" — strong push`});
   });
-  const buls=bulletins.slice(-15).map(b=>({sym:b.author.split(' ')[0].slice(0,4).toUpperCase(),dir:'up',msg:`${b.author}: ${b.text}`,isBulletin:true}));
-  return [...buls,...auto];
+  const news=newsItems.slice(-20).map(n=>{
+    const cfg=NEWS_TYPE_CONFIG[n.type]||NEWS_TYPE_CONFIG.update;
+    return { sym:cfg.symbol, dir:cfg.dir, msg:`${n.author}: ${n.text}`, isNews:true, newsType:n.type };
+  });
+  return [...news,...auto];
+}
+
+function computeNewsModifiers(newsItems) {
+  const mods={NRG:0,PRD:0,PRG:0,MRL:0,MOM:0,FCS:0};
+  const cutoff=Date.now()-4*60*60*1000;
+  newsItems.filter(n=>(n.timestamp||0)>cutoff).forEach(n=>{
+    Object.entries(NEWS_MODS[n.type]||{}).forEach(([sym,d])=>{if(mods[sym]!==undefined)mods[sym]+=d;});
+  });
+  Object.keys(mods).forEach(k=>{mods[k]=Math.max(-15,Math.min(15,mods[k]));});
+  return mods;
 }
 
 let tickerPos=0, tickerHalfW=0;
 function renderTickItem(t){
   const ac=t.dir==='up'?'var(--green)':'var(--red)';
-  return `<span class="tick-item"><span class="tick-sym">${t.sym}</span><span class="tick-arrow" style="color:${ac}">${t.dir==='up'?'▲':'▼'}</span><span class="tick-msg${t.isBulletin?' tick-bulletin':''}">${t.msg}</span></span>`;
+  return `<span class="tick-item"><span class="tick-sym">${t.sym}</span><span class="tick-arrow" style="color:${ac}">${t.dir==='up'?'▲':'▼'}</span><span class="tick-msg${t.isNews?' tick-bulletin':''}">${t.msg}</span></span>`;
 }
 function rebuildTicker(live){
-  const base=live.length?[...live,...SIM_FEED]:SIM_FEED;
+  const base=live.length?live:EMPTY_FEED;
   const doubled=[...base,...base];
   const track=document.getElementById('ticker-track'); if(!track) return;
   track.innerHTML=doubled.map(renderTickItem).join('<span class="tick-sep">◆</span>');
@@ -648,16 +671,17 @@ function advance(){
 // ── Firebase ──────────────────────────────────────────
 db.ref('studio_economy').on('value', snapshot=>{
   const data=snapshot.val()||{};
-  currentMembers  =Object.values(data.members||{});
-  currentBulletins=Object.values(data.bulletins||{}).sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
+  currentMembers=Object.values(data.members||{});
+  currentNews   =Object.values(data.news||{}).sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
+  const mods=computeNewsModifiers(currentNews);
   if(currentMembers.length){
     renderTeamStrip(currentMembers);
     const tv=computeFromTeam(currentMembers);
-    if(tv) applyTeamMetrics(tv, currentMembers.length);
-    rebuildTicker(buildLiveMessages(currentMembers,currentBulletins));
+    if(tv) applyTeamMetrics(tv, currentMembers.length, mods);
+    rebuildTicker(buildLiveMessages(currentMembers,currentNews));
   } else {
     renderTeamStrip([]);
-    rebuildTicker([]);
+    rebuildTicker(buildLiveMessages([],currentNews));
   }
 });
 
